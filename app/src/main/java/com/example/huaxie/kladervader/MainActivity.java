@@ -54,8 +54,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     .addApi(LocationServices.API)
                     .build();
         }
-        /*GPS mGPS = new GPS(getApplicationContext(),this);
-        mTextView.setText("latitude = " + mGPS.getLatitude() + "getLongitude = "+ mGPS.getLongitude());*/
 
 
     }
@@ -87,8 +85,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        getLocation();
-        Networking newNetworking = new Networking();
+        getLocation();//get latitude and longitude
+        Networking newNetworking = new Networking();// get json object from weather web
         newNetworking.execute();
     }
 

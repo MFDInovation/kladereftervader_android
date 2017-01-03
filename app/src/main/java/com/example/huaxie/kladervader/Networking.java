@@ -3,6 +3,10 @@ package com.example.huaxie.kladervader;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +14,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Date;
 
 /**
  * Created by huaxie on 2017-01-02.
@@ -17,8 +22,9 @@ import java.net.URL;
 
 public class Networking extends AsyncTask< String, String, String > {
 
-    private final String TAG = "Networking";
+    private final static String TAG = "Networking";
     private URL weatherInfoURL;
+    private String dataBuffer;
 
 
     @Override
@@ -44,8 +50,9 @@ public class Networking extends AsyncTask< String, String, String > {
             while ((line = reader.readLine()) != null) {
                 buffer.append(line+"\n");
             }
-            Log.d(TAG, "doInBackground: " + buffer);
-            return buffer.toString();
+            dataBuffer = buffer.toString();
+            getWeather(getJsonObject());
+            return dataBuffer;
 
 
         } catch (MalformedURLException e) {
@@ -66,5 +73,22 @@ public class Networking extends AsyncTask< String, String, String > {
         }
         return null;
     }
+
+    public JSONObject getJsonObject() {
+        JSONObject obj = null;
+        try {
+            obj = new JSONObject(dataBuffer);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return obj;
+    }
+
+    public void getWeather(JSONObject collectedData) {
+        JsonParser jsParser = new JsonParser(collectedData);
+
+        Log.d(TAG, "getWeather: " + jsParser.getWeather().toString());
+    }
+
 }
 

@@ -3,27 +3,28 @@ package com.example.huaxie.kladervader;
 import org.json.JSONObject;
 
 /**
- * Created by huaxie on 2017-01-02.
+ * Created by huaxie on 2017-01-03.
  */
 
 public class Weather {
-    private int symbol;
-    private double temperature;
-    private double rainfall;
-    private double windSpeed;
+    public int symbol;
+    public double temperature;
+    public double rainfall;
+    public double windSpeed;
 
-    public Weather(int symbol, double temperature, double rainfall, double windSpeed){
+    public Weather(){
+        Weather(0,0,0,0);
+    }
+
+    public void Weather(int symbol, double temperature, double rainfall, double windSpeed){
         this.symbol = symbol;
         this.temperature = temperature;
         this.rainfall = rainfall;
         this.windSpeed = windSpeed;
     }
 
-    public void initWeather(JSONObject json, int startTime, int endTime){
-        double maxRainfall;
-        double minTemperature;
-        int worstSymbol;
-        double maxWindSpeed;
+    @Override
+    public String toString() {
+        return "symbol: "+symbol + "temperature: " + temperature + "rainfall: " + rainfall + "windSpeed :" +windSpeed;
     }
 }
-
