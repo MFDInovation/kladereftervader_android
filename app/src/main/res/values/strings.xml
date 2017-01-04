@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">KladerVader</string>
+    <string name="request_permission_location_title">Location permission request</string>
+    <string name="request_permission_location_text">Please allow location permission</string>
+    <string name="ok">ok</string>
+    <string name="permission_request_dont_ask_again">do not ask again</string>
+
+
 </resources>

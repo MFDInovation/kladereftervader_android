@@ -104,6 +104,13 @@ public class JsonParser {
 
     public void getValidDateTime(){
         startDate = new Date();
+        /* test data
+        SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'",Locale.US);
+        try {
+            startDate = dateformat.parse("2017-01-03T10:00:00Z");
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }*/
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(startDate);
         calendar.add(Calendar.HOUR, 8);
