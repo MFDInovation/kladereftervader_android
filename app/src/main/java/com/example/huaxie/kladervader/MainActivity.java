@@ -36,10 +36,15 @@ import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 
+import java.util.concurrent.locks.Lock;
+
 import static android.content.DialogInterface.BUTTON_POSITIVE;
+import static com.example.huaxie.kladervader.PermissionUtil.PERMISSION_PROMPT_GPS_DIALOG;
 
 
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class MainActivity extends AppCompatActivity implements
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener{
 
     private final String TAG = "MainActivity";
     private final int POSITION_PERMISSION = 1;
@@ -73,8 +78,21 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     protected void onStart() {
         mGoogleApiClient.connect();
-        //checkLocationSetting();
+        checkPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
         super.onStart();
+    }
+
+    @Override
+    protected void onResume() {
+        if(checkLegacyLocationPermission(this)){
+            Log.d(TAG, "onresume, can get location");
+            //need update
+            getLocation();
+        }else {
+            Log.d(TAG, "onresume, gps need enable");
+            enableGPS();
+        }
+        super.onResume();
     }
 
     @Override
@@ -86,7 +104,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        checkPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
     }
 
     @Override
@@ -112,14 +129,19 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }catch (SecurityException e){
             Log.d(TAG, "onRequestPermissionsResult: location requestion is granted");
         }
+        Log.d(TAG, "getLocation: "+ mLastLocation);
+        return mLastLocation;
+    }
+
+    public void getWeatherInfo(){
+//        Log.d(TAG, "getWeatherInfo: !!!!!!!!!");
         Networking newNetworking = new Networking();// get json object from weather web
         newNetworking.execute();
-        return mLastLocation;
     }
 
     private void enableGPS(){
         LocationRequest locationRequest = LocationRequest.create();
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setPriority(LocationRequest.PRIORITY_LOW_POWER);
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
                 .addLocationRequest(locationRequest);
         builder.setAlwaysShow(true);
@@ -132,6 +154,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 final LocationSettingsStates state = result.getLocationSettingsStates();
                 switch (status.getStatusCode()) {
                     case LocationSettingsStatusCodes.SUCCESS:
+                        getLocation();
+                        getWeatherInfo();
                         break;
                     case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
                         try {
@@ -147,6 +171,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     public void checkPermission(final String whatPermission){
+        Log.d(TAG, "checkPermission: ing");
         if (ContextCompat.checkSelfPermission(this, whatPermission)
                 != PackageManager.PERMISSION_GRANTED) {
 
@@ -154,42 +179,50 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     whatPermission)) {
                 switch (whatPermission) {
                     case Manifest.permission.ACCESS_COARSE_LOCATION:
-                        /*String message = "We need your location to get weather information";
-                        showMessageOKCancel(message,
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        if(which == BUTTON_POSITIVE){
-                                            dialog.dismiss();
-                                        }else{
-                                            dialog.dismiss();
-                                            finish();
-                                        }
-                                    }
-                                });
-                        enableGPS();
-                        getLocation();
-                        break;*/
+                        if (PreferenceManager.getDefaultSharedPreferences(MainActivity.this).getBoolean
+                                (PERMISSION_PROMPT_GPS_DIALOG, true)) {
+                            createLocationDialog(Manifest.permission.ACCESS_COARSE_LOCATION);
+                            Log.d(TAG, "checkPermission: explaining");
+                        } else {}
+                        break;
                 }
 
             } else {
+                Log.d(TAG, "checkPermission: permission requesting");
                 ActivityCompat.requestPermissions(MainActivity.this,
                         new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
                         REQUEST_ACCESS_COURSE_LOCATION);
             }
         } else {
-            enableGPS();
-            getLocation();
+            Log.d(TAG, "checkPermission: has permission");
+            if(checkLegacyLocationPermission(this)){
+                Log.d(TAG, "checkPermission: has location enabled, geting location");
+                //need update
+                getLocation();
+            }else {
+                Log.d(TAG, "checkPermission: GPS need enabled");
+                enableGPS();
+            }
         }
     }
 
-    private void showMessageOKCancel(String message, DialogInterface.OnClickListener okListener) {
-        new android.app.AlertDialog.Builder(MainActivity.this)
-                .setMessage(message)
-                .setPositiveButton("OK", okListener)
-                .setNegativeButton("Cancel", okListener)
-                .create()
-                .show();
+    public static boolean checkLegacyLocationPermission(Context context) {
+        boolean gps_enabled = false;
+        boolean network_enabled = false;
+        LocationManager lm = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
+        try {
+            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch(Exception ex) {}
+
+        try {
+            network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        } catch(Exception ex) {}
+
+        if(!gps_enabled && !network_enabled) {
+            // notify user
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -200,15 +233,18 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    enableGPS();
-                    getLocation();
+                    Log.d(TAG, "onRequestPermissionsResult: permission granted");
+                    if(checkLegacyLocationPermission(this)){
+                        getLocation();
+                        Log.d(TAG, "onRequestPermissionsResult: GPS is on, waiting for location");
+                    }else {
+                        Log.d(TAG, "onRequestPermissionsResult: GPS need enable!!!");
+                        enableGPS();
+                    }
                     break;
                 } else {
-                    /*String message = "We need your location to get weather information";
+                    String message = "We need your location to get weather information";
                     Toast.makeText(this,message,Toast.LENGTH_LONG).show();
-                    enableGPS();
-                    mGoogleApiClient.connect();
-                    getLocation();*/
                     break;
                 }
             }
@@ -224,9 +260,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             case REQUEST_CHECK_SETTINGS:
                 switch (resultCode) {
                     case AppCompatActivity.RESULT_OK:
-                        getLocation();
+                        Log.d(TAG, "onActivityResult: client allow to enable GPS");
                         break;
                     case AppCompatActivity.RESULT_CANCELED:
+                        Log.d(TAG, "onActivityResult: client donnt allow to enable GPS");
                         finish();//keep asking if imp or do whatever
                         break;
                 }
@@ -246,6 +283,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
+                Log.d(TAG, "onClick: click ok, request again");
                 ActivityCompat.requestPermissions(MainActivity.this,
                         new String[]{what},
                         REQUEST_ACCESS_COURSE_LOCATION);
@@ -263,4 +301,5 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         });
         builder.show();
     }
+
 }
