@@ -1,17 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.huaxie.kladervader.MainActivity">
 
-    <TextView
-        android:id="@+id/mtext"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    <android.support.percent.PercentRelativeLayout
+        android:id="@+id/base_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
+        <ImageView
+            android:layout_width="match_parent"
+            android:id="@+id/base_background"
+            android:src="@mipmap/host_klart"
+            android:scaleType="centerInside"
+            android:adjustViewBounds="true" />
+
+        <RelativeLayout
+            android:id="@+id/temp_container"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:layout_alignParentTop="true">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:text="3°"
+                android:textColor="@color/white"
+                android:shadowColor="@color/text_shadow_white"
+                android:layout_centerVertical="true"
+                android:textSize="80sp"
+                android:textAlignment="center"
+                android:layout_marginStart="40dp"/>
+
+            <TextView
+                android:id="@+id/mtext"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Egna Bilder"
+                android:textSize="20sp"
+                android:textColor="@color/colorPrimary"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="18dp"/>
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:id="@+id/viewPager_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_below="@+id/temp_container"
+            android:layout_alignParentBottom="true">
+
+            <android.support.v4.view.ViewPager
+                android:id="@+id/myViewPager"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                >
+
+            </android.support.v4.view.ViewPager>
+
+            <ImageView
+                android:id="@+id/person_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src = "@mipmap/zero"
+                android:layout_alignParentTop="true"
+                android:layout_toEndOf="@+id/myViewPager" />
+
+        </RelativeLayout>
+
+    </android.support.percent.PercentRelativeLayout>
+
+
 </RelativeLayout>

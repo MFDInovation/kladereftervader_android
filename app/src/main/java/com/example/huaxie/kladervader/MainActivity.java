@@ -1,7 +1,6 @@
 package com.example.huaxie.kladervader;
 
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,17 +9,26 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.percent.PercentRelativeLayout;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +44,7 @@ import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 
 import static android.content.DialogInterface.BUTTON_POSITIVE;
@@ -44,19 +53,26 @@ import static com.example.huaxie.kladervader.PermissionUtil.PERMISSION_PROMPT_GP
 
 public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener{
+        GoogleApiClient.OnConnectionFailedListener,
+        ViewPager.OnPageChangeListener{
 
     private final String TAG = "MainActivity";
     private final int POSITION_PERMISSION = 1;
     private TextView mTextView;
+    private PercentRelativeLayout baseContainer;
+    private ImageView baseBackground;
+    private RelativeLayout tempContainer;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
     private static double latitude; // latitude
     private static double longitude; // longitude
+    private LocationRequest locationRequest;
     protected static final int REQUEST_CHECK_SETTINGS = 108;
     protected static final int REQUEST_ACCESS_COURSE_LOCATION = 118;
     protected static final int REQUEST_CAMERA = 128;
     protected static final int REQUEST_READ_EXTERNAL_STORAGE = 138;
+
+    FragmentPagerAdapter adapterViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +87,29 @@ public class MainActivity extends AppCompatActivity implements
                     .build();
         }
 
+        //layout update
+        baseContainer = (PercentRelativeLayout)findViewById(R.id.base_container);
+        baseBackground = (ImageView)findViewById(R.id.base_background);
+        tempContainer = (RelativeLayout)findViewById(R.id.temp_container);
+        baseBackground.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                baseBackground.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                int imageHeight = baseBackground.getHeight();
+                Log.d(TAG, "onstart: imageHeight" + imageHeight);
+                int height = (int)Math.round(imageHeight*0.22);
+                PercentRelativeLayout.LayoutParams params = new PercentRelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height);
+                tempContainer.setLayoutParams(params);
+            }
+        });
+        //viewpagaer test
+        /*ViewPager vpPager = (ViewPager) findViewById(R.id.myViewPager);
+        adapterViewPager = new MyPagerAdapter(getSupportFragmentManager());
+        vpPager.setAdapter(adapterViewPager);*/
 
+        //location related
+        locationRequest  = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_LOW_POWER);
     }
 
 
@@ -107,14 +145,10 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onConnectionSuspended(int i) {
-
-    }
+    public void onConnectionSuspended(int i) {}
 
     @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {}
 
     public Location getLocation(){
         try{
@@ -140,8 +174,6 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void enableGPS(){
-        LocationRequest locationRequest = LocationRequest.create();
-        locationRequest.setPriority(LocationRequest.PRIORITY_LOW_POWER);
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
                 .addLocationRequest(locationRequest);
         builder.setAlwaysShow(true);
@@ -248,9 +280,6 @@ public class MainActivity extends AppCompatActivity implements
                     break;
                 }
             }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
         }
     }
 
@@ -264,7 +293,7 @@ public class MainActivity extends AppCompatActivity implements
                         break;
                     case AppCompatActivity.RESULT_CANCELED:
                         Log.d(TAG, "onActivityResult: client donnt allow to enable GPS");
-                        finish();//keep asking if imp or do whatever
+                        finish();
                         break;
                 }
                 break;
@@ -302,4 +331,37 @@ public class MainActivity extends AppCompatActivity implements
         builder.show();
     }
 
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+
+    @Override
+    public void onPageSelected(int position) {
+        Toast.makeText(MainActivity.this,
+                "Selected page position: " + position, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {}
+
+    private static class MyPagerAdapter extends FragmentPagerAdapter {
+//        private List<In>
+
+        private static int NUM_ITEMS = 3;
+
+        public MyPagerAdapter(FragmentManager fragmentManager) {
+            super(fragmentManager);
+        }
+
+        // Returns total number of pages
+        @Override
+        public int getCount() {
+            return NUM_ITEMS;
+        }
+
+        // Returns the fragment to display for that page
+        @Override
+        public Fragment getItem(int position) {
+            return ImageFragment.newInstance(position,R.mipmap.minusten);
+        }
+    }
 }
