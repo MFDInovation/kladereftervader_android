@@ -5,9 +5,11 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
 import android.content.Intent;
@@ -29,40 +31,47 @@ import com.google.android.gms.location.LocationServices;
 
 public abstract class PermissionUtil {
 
+    private static final String TAG = "permissionUtil";
     public static final String PERMISSION_PROMPT_LOCATION_DIALOG = "permission_prompt_location_dialog";
     public static final String PERMISSION_PROMPT_GPS_DIALOG = "permission_prompt_gps_dialog";
     public static final String PERMISSION_PROMPT_CAMERA_DIALOG =
             "permission_prompt_camera_dialog";
+    protected static final int REQUEST_ACCESS_COURSE_LOCATION = 118;
+    protected static final int REQUEST_CAMERA = 128;
 
-    /*public static boolean requestLocation(Activity activity, DialogInterface.OnClickListener
-            listener) {
-        if (ContextCompat.checkSelfPermission(activity, Manifest
-                .permission.ACCESS_FINE_LOCATION)
+    public static boolean checkPermission(Activity activity, final String whatPermission){
+        Log.d(TAG, "checkPermission: ing");
+        if (ContextCompat.checkSelfPermission(activity, whatPermission)
                 != PackageManager.PERMISSION_GRANTED) {
-            if (activity != null && ActivityCompat.shouldShowRequestPermissionRationale(activity,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-                if (PreferenceManager.getDefaultSharedPreferences(activity).getBoolean
-                        (PERMISSION_PROMPT_GPS_DIALOG, true)) {
-                    createLocationDialog(activity, listener);
-                } else {}
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(activity,
+                    whatPermission)) {
+                switch (whatPermission) {
+                    case Manifest.permission.ACCESS_COARSE_LOCATION:
+                        if (PreferenceManager.getDefaultSharedPreferences(activity).getBoolean
+                                (PERMISSION_PROMPT_GPS_DIALOG, true)) {
+                            createLocationDialog(activity,Manifest.permission.ACCESS_COARSE_LOCATION);
+                            Log.d(TAG, "checkPermission: explaining");
+                        }
+                        break;
+                    case Manifest.permission.READ_EXTERNAL_STORAGE:
+                        break;
+                    case Manifest.permission.CAMERA:
+                        createCameraDialog(activity,Manifest.permission.CAMERA);
+                        break;
+                }
+
             } else {
-                if (activity != null) {
-                    ActivityCompat.requestPermissions(activity,
-                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                            Base.ACCESS_FINE_LOCATION_PERMISSION_REQUEST);
-//                    checkPermission();
+                switch (whatPermission){
+                    case Manifest.permission.ACCESS_COARSE_LOCATION:
+                        Log.d(TAG, "checkPermission: permission requesting");
+                        ActivityCompat.requestPermissions(activity,
+                                new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                                REQUEST_ACCESS_COURSE_LOCATION);
+                        break;
                 }
             }
         } else {
-            return true;
-        }
-        return false;
-    }
-
-    public static boolean checkLocationPermissionGranted(Context context) {
-        if (ContextCompat.checkSelfPermission(context, Manifest
-                .permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
             return true;
         }
         return false;
@@ -87,59 +96,61 @@ public abstract class PermissionUtil {
         return true;
     }
 
-    private static void createLocationDialog(final Activity activity, DialogInterface
-            .OnClickListener
-            listener) {
-        if (activity != null) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-            builder.setTitle(R.string.permission_request_gps_title);
-            builder.setMessage(R.string.permission_request_gps_text);
-            builder.setPositiveButton(R.string.ok, listener);
-            builder.setNegativeButton(R.string.permission_request_dont_ask_again, listener);
-            builder.show();
-        }
-    }
-
-    public static boolean checkCameraPermission(Activity activity, DialogInterface
-            .OnClickListener listener, boolean start) {
-        if (ContextCompat.checkSelfPermission(activity, Manifest
-                .permission.CALL_PHONE)
-                != PackageManager.PERMISSION_GRANTED) {
-            if (activity != null && ActivityCompat.shouldShowRequestPermissionRationale(activity,
-                    Manifest.permission.CALL_PHONE)) {
-                if (start) {
-                    if (PreferenceManager.getDefaultSharedPreferences(activity).getBoolean
-                            (PERMISSION_PROMPT_CALL_DIALOG, true)) {
-                        createPhoneDialog(activity, listener);
-                    }
-                } else {
-                    createPhoneDialog(activity, listener);
-                }
-            } else {
-                if (activity != null) {
-                    ActivityCompat.requestPermissions(activity,
-                            new String[]{Manifest.permission.CALL_PHONE},
-                            Base.CALL_PHONE_PERMISSION);
-//                    checkPermission();
-                }
+    public static void createLocationDialog(final Activity activity, final String what) {
+        android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(activity);
+        builder.setTitle(R.string.request_permission_location_title);
+        builder.setMessage(R.string.request_permission_location_text);
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                Log.d(TAG, "onClick: click ok, request again");
+                ActivityCompat.requestPermissions(activity,
+                        new String[]{what},
+                        REQUEST_ACCESS_COURSE_LOCATION);
             }
-        } else {
-            return true;
-        }
-        return false;
+        });
+        builder.setNegativeButton(R.string.permission_request_dont_ask_again, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                SharedPreferences.Editor edit = PreferenceManager.getDefaultSharedPreferences
+                        (activity).edit();
+                edit.putBoolean(PermissionUtil.PERMISSION_PROMPT_LOCATION_DIALOG, false);
+                edit.apply();
+                dialog.dismiss();
+            }
+        });
+        builder.show();
     }
 
-    private static void createCameraDialog(final Activity activity,
-                                          DialogInterface.OnClickListener listener) {
+
+    private static void createCameraDialog(final Activity activity,final String what) {
         if (activity != null) {
             AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-            builder.setTitle(R.string.permission_request_call_phone_title);
-            builder.setMessage(R.string.permission_request_call_phone_text);
-            builder.setPositiveButton(R.string.ok, listener);
-            builder.setNegativeButton(R.string.denied, listener);
+            builder.setTitle(R.string.permission_request_camera_title);
+            builder.setMessage(R.string.request_permission_camera_text);
+            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                    Log.d(TAG, "onClick: click ok, request again");
+                    ActivityCompat.requestPermissions(activity,
+                            new String[]{what},REQUEST_CAMERA);
+                }
+            });
+            builder.setNegativeButton(R.string.permission_request_dont_ask_again, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    SharedPreferences.Editor edit = PreferenceManager.getDefaultSharedPreferences
+                            (activity).edit();
+                    edit.putBoolean(PermissionUtil.PERMISSION_PROMPT_CAMERA_DIALOG, false);
+                    edit.apply();
+                    dialog.dismiss();
+                }
+            });
             builder.show();
         }
-    }*/
+    }
 }
 
 

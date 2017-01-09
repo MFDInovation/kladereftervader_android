@@ -39,8 +39,8 @@ public class Networking extends AsyncTask< String, String, String > {
         BufferedReader reader = null;
 
         try {
-            String longitude = String.format("%.3f",MainActivity.getlongitude());
-            String latitude = String.format("%.3f",MainActivity.getlatitude());
+            String longitude = String.format("%.3f",GPS.getlongitude());
+            String latitude = String.format("%.3f",GPS.getlatitude());
             weatherInfoURL = new URL(String.format("http://opendata-download-metfcst.smhi.se/api/category/pmp2g/version/2/geotype/point/lon/%s/lat/%s/data.json",
                     longitude, latitude));
             connection = (HttpURLConnection) weatherInfoURL.openConnection();
