@@ -16,9 +16,15 @@
         <ImageView
             android:layout_width="match_parent"
             android:id="@+id/base_background"
-            android:src="@mipmap/host_klart"
             android:scaleType="centerInside"
             android:adjustViewBounds="true" />
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_centerInParent="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
 
         <RelativeLayout
             android:id="@+id/temp_container"
@@ -26,9 +32,9 @@
             android:layout_height="150dp"
             android:layout_alignParentTop="true">
             <TextView
+                android:id="@+id/temp"
                 android:layout_width="wrap_content"
                 android:layout_height="100dp"
-                android:text="3°"
                 android:textColor="@color/white"
                 android:shadowColor="@color/text_shadow_white"
                 android:layout_centerVertical="true"
@@ -74,7 +80,6 @@
                 android:id="@+id/person_container"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src = "@mipmap/zero"
                 android:layout_alignParentTop="true"
                 android:layout_toEndOf="@+id/myViewPager" />
 

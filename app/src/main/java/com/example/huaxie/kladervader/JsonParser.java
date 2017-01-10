@@ -33,14 +33,15 @@ public class JsonParser {
         getValidDateTime();
         double maxRainfall = -Double.MAX_VALUE;
         double minTemperature = Double.MAX_VALUE;
+        int worstSymbolPriority = 0;
         int worstSymbol = 0;
         double maxWindSpeed = 0;
         double temperature;
         double rainfall= 0;
         int symbol = 0;
         double windSpeed;
+        WeatherSymbol weatherSymbol;
         Weather weather = new Weather();
-        boolean worstSymbolChange = false;
         try {
             timeSeries = originalObj.getJSONArray("timeSeries");
         } catch (JSONException e) {
@@ -61,33 +62,30 @@ public class JsonParser {
                             if(name.equals("t")){
                                 temperature = elementInParameter.getJSONArray("values").getDouble(0);
                                 minTemperature = Math.min(minTemperature,temperature);
-                                Log.d(TAG, "getWeather: t" + temperature);
+//                                Log.d(TAG, "getWeather: t" + temperature);
 //                        Log.d(TAG, "getParameters: "+ elementInParameter.getJSONArray("values").getDouble(0));
                             }else if(name.equals("pmax")){
                                 rainfall = elementInParameter.getJSONArray("values").getDouble(0);
-                                Log.d(TAG, "getWeather: rainfall" + rainfall);
-                                if(rainfall > maxRainfall)
-                                {
-                                    worstSymbolChange = true;
-                                }else {
-                                    worstSymbolChange = false;
-                                }
+//                                Log.d(TAG, "getWeather: rainfall" + rainfall);
                                 maxRainfall = Math.max(maxRainfall,rainfall);
                             }else if(name.equals("Wsymb")){
                                 symbol = elementInParameter.getJSONArray("values").getInt(0);
-                                Log.d(TAG, "getWeather: symbol" + symbol);
-                                if(worstSymbolChange){
+//                                Log.d(TAG, "getWeather: symbol" + symbol);
+                                weatherSymbol = new WeatherSymbol(symbol);
+                                int currentSymbolPriority = weatherSymbol.getmSymbolPriority();
+                                if( currentSymbolPriority > worstSymbolPriority){
+                                    worstSymbolPriority = currentSymbolPriority;
                                     worstSymbol = symbol;
+                                    Log.d(TAG, "getWeather: priority"+ weatherSymbol.getmSymbolPriority());
                                 }
                             }else if(name.equals("ws")){
                                 windSpeed = elementInParameter.getJSONArray("values").getDouble(0);
-                                Log.d(TAG, "getWeather: " + windSpeed);
+//                                Log.d(TAG, "getWeather: " + windSpeed);
                                 maxWindSpeed = Math.max(maxWindSpeed, windSpeed);
                             }else {
                             }
                         }
                     }
-                    worstSymbolChange = false;
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
@@ -98,27 +96,17 @@ public class JsonParser {
         weather.temperature= minTemperature;
         weather.rainfall = maxRainfall;
         weather.windSpeed = maxWindSpeed;
-        weather.symbol = worstSymbol;//not sure whether it is right value
+        weather.symbol = worstSymbol;
+        weather.weatherSymbol = new WeatherSymbol(worstSymbol);
         return weather;
     }
 
     public void getValidDateTime(){
         startDate = new Date();
-        /* test data
-        SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'",Locale.US);
-        try {
-            startDate = dateformat.parse("2017-01-03T10:00:00Z");
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }*/
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(startDate);
         calendar.add(Calendar.HOUR, 8);
         endDate = calendar.getTime();
-
-//        String endTime = dateformat.format(endDate);
-//        Log.d(TAG, "getValidTimeSeries: end time" +endTime );
-
     }
 
 }

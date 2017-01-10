@@ -11,6 +11,7 @@ public class Weather {
     public double temperature;
     public double rainfall;
     public double windSpeed;
+    public WeatherSymbol weatherSymbol;
 
     public Weather(){
         Weather(0,0,0,0);
@@ -21,10 +22,37 @@ public class Weather {
         this.temperature = temperature;
         this.rainfall = rainfall;
         this.windSpeed = windSpeed;
+        if(symbol != 0){
+            this.weatherSymbol = new WeatherSymbol(symbol);
+        }else {
+            weatherSymbol = null;
+        }
     }
 
     @Override
     public String toString() {
         return "symbol: "+symbol + "temperature: " + temperature + "rainfall: " + rainfall + "windSpeed :" +windSpeed;
+    }
+
+    public int getSymbol() {
+        return symbol;
+    }
+
+    public double getRainfall() {
+        return rainfall;
+    }
+
+    public double getTemperature() {
+        return temperature;
+    }
+
+    public double getWindSpeed() {
+        return windSpeed;
+    }
+
+    public WeatherSymbol getWeatherSymbol() {return weatherSymbol;}
+
+    public WeatherSymbol.WeatherStatus getWeatherStatus(){
+        return weatherSymbol.getWeatherStatus(symbol);
     }
 }

@@ -1,14 +1,9 @@
 package com.example.huaxie.kladervader;
 
-import android.Manifest;
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.percent.PercentRelativeLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -16,35 +11,27 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResult;
-import com.google.android.gms.location.LocationSettingsStates;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
 
 
 public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener{
 
     private final String TAG = "MainActivity";
     private final int POSITION_PERMISSION = 1;
-    private TextView mTextView;
+    private TextView mTemp;
     private PercentRelativeLayout baseContainer;
     private ImageView baseBackground;
     private RelativeLayout tempContainer;
     private GPS mgps;
+    private Weather mCurrentWeather;
+    private ProgressBar progressBar;
 
     protected static final int REQUEST_CHECK_SETTINGS = 108;
     protected static final int REQUEST_ACCESS_COURSE_LOCATION = 118;
@@ -57,24 +44,14 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mTextView = (TextView) findViewById(R.id.mtext);
-
+        mTemp = (TextView) findViewById(R.id.temp);
 
         //layout update
         baseContainer = (PercentRelativeLayout)findViewById(R.id.base_container);
         baseBackground = (ImageView)findViewById(R.id.base_background);
         tempContainer = (RelativeLayout)findViewById(R.id.temp_container);
-        baseBackground.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                baseBackground.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                int imageHeight = baseBackground.getHeight();
-                Log.d(TAG, "onstart: imageHeight" + imageHeight);
-                int height = (int)Math.round(imageHeight*0.22);
-                PercentRelativeLayout.LayoutParams params = new PercentRelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height);
-                tempContainer.setLayoutParams(params);
-            }
-        });
+        progressBar = (ProgressBar)findViewById(R.id.progress_bar);
+
         //viewpagaer test
         /*ViewPager vpPager = (ViewPager) findViewById(R.id.myViewPager);
         adapterViewPager = new MyPagerAdapter(getSupportFragmentManager());
@@ -96,15 +73,53 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
     @Override
     protected void onStop() {
+        mgps.stop();
         super.onStop();
     }
 
-
-
     public void getWeatherInfo(){
-//        Log.d(TAG, "getWeatherInfo: !!!!!!!!!");
-        Networking newNetworking = new Networking();// get json object from weather web
+        mCurrentWeather = null;
+        final Networking newNetworking = new Networking(new Networking.AsyncResponse(){
+            @Override
+            public void processFinish(final Weather weather) {
+                mCurrentWeather = weather;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(mCurrentWeather == null){
+                            Toast.makeText(MainActivity.this,"Did not get the weather info,try again", Toast.LENGTH_LONG).show();
+                        }else {
+                            updateLayout(mCurrentWeather);
+                            progressBar.setVisibility(View.GONE);
+                        }
+                    }
+                });
+            }
+        });// get json object from weather web
         newNetworking.execute();
+    }
+
+    private void updateLayout(Weather mCurrentWeather){
+        //update temp
+        double temp = mCurrentWeather.getTemperature();
+        String temperature = (int)Math.round(temp) + "°";
+        mTemp.setText(temperature);
+        //update background
+        WeatherSymbol.WeatherStatus status = mCurrentWeather.getWeatherStatus();
+        WeatherImage weatherImage = new WeatherImage();
+        int id = weatherImage.getWeatherSymbolImage(status,weatherImage.getCurrentSeason());
+        baseBackground.setImageResource(id);
+        baseBackground.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                baseBackground.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                int imageHeight = baseBackground.getHeight();
+                Log.d(TAG, "onstart: imageHeight" + imageHeight);
+                int height = (int)Math.round(imageHeight*0.22);
+                PercentRelativeLayout.LayoutParams params = new PercentRelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height);
+                tempContainer.setLayoutParams(params);
+            }
+        });
     }
 
     @Override
@@ -136,6 +151,13 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 switch (resultCode) {
                     case AppCompatActivity.RESULT_OK:
                         Log.d(TAG, "onActivityResult: client allow to enable GPS");
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressBar.setVisibility(View.VISIBLE);
+                                Toast.makeText(MainActivity.this, "Waiting for GPS", Toast.LENGTH_SHORT).show();
+                            }
+                        });
                         mgps.doWhenPermissionIsGranted();
                         break;
                     case AppCompatActivity.RESULT_CANCELED:
@@ -151,12 +173,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
         @Override
         public void hasLocation(final double latitude, final double longitude) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(MainActivity.this,"latitude" + latitude + "longitude" + longitude, Toast.LENGTH_LONG).show();
-                }
-            });
+            getWeatherInfo();
             mgps.stop();
         }
     };
