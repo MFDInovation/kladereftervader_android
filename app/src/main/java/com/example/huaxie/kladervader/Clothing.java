@@ -4,7 +4,7 @@ package com.example.huaxie.kladervader;
  * Created by huaxie on 2017-01-09.
  */
 
-public class Closing {
+public class Clothing {
     private int imageId;
     public enum TempStatus {
         mycketKallt("kängor, varma strumpor, Underställ, täckbyxor, varm tröja, varm jacka, varma vantar, varm mössa, halsduk"),

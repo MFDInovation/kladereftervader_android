@@ -3,14 +3,20 @@ package com.example.huaxie.kladervader;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.percent.PercentRelativeLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -20,11 +26,14 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener{
+
+public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener,View.OnClickListener{
 
     private final String TAG = "MainActivity";
-    private final int POSITION_PERMISSION = 1;
     private TextView mTemp;
     private PercentRelativeLayout baseContainer;
     private ImageView baseBackground;
@@ -33,13 +42,18 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     private Weather mCurrentWeather;
     private ProgressBar progressBar;
     private ImageView portrait;
+    private TextView egnaBilderButton;
+    private ArrayList<String> mUriList;
+    private ArrayList<Uri> mViewPagerList;
+    private ViewPager mViewPager;
 
     protected static final int REQUEST_CHECK_SETTINGS = 108;
     protected static final int REQUEST_ACCESS_COURSE_LOCATION = 118;
     protected static final int REQUEST_CAMERA = 128;
     protected static final int REQUEST_READ_EXTERNAL_STORAGE = 138;
+    protected static final int ACTIVITY_RESULT_CODE = 1;
 
-    FragmentPagerAdapter adapterViewPager;
+    private PagerAdapter adapterViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,13 +67,14 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         tempContainer = (RelativeLayout)findViewById(R.id.temp_container);
         progressBar = (ProgressBar)findViewById(R.id.progress_bar);
         portrait = (ImageView)findViewById(R.id.portrait_container);
+        egnaBilderButton = (TextView)findViewById(R.id.egna_bilder_button);
+        mViewPager = (ViewPager) findViewById(R.id.myViewPager);
 
-        //viewpagaer test
-        /*ViewPager vpPager = (ViewPager) findViewById(R.id.myViewPager);
-        adapterViewPager = new MyPagerAdapter(getSupportFragmentManager());
-        vpPager.setAdapter(adapterViewPager);*/
 
         mgps = new GPS(this,hasLocationListener);
+        egnaBilderButton.setOnClickListener(this);
+
+        mViewPagerList = new ArrayList<Uri>();
     }
 
 
@@ -125,8 +140,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             }
         });
         //update portrait
-        Closing closing = new Closing();
-        int portraitId = closing.getClosingImage(mCurrentWeather);
+        Clothing clothing = new Clothing();
+        int portraitId = clothing.getClosingImage(mCurrentWeather);
         portrait.setImageResource(portraitId);
         portrait.setVisibility(View.VISIBLE);
     }
@@ -175,6 +190,13 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                         break;
                 }
                 break;
+            case ACTIVITY_RESULT_CODE:
+                switch (resultCode) {
+                    case AppCompatActivity.RESULT_OK:
+                        mUriList = data.getStringArrayListExtra("UriList");
+                        updateViewPager();
+                        break;
+                }
         }
     }
 
@@ -186,6 +208,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             mgps.stop();
         }
     };
+
+
 
 
     @Override
@@ -200,25 +224,75 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     @Override
     public void onPageScrollStateChanged(int state) {}
 
-    private static class MyPagerAdapter extends FragmentPagerAdapter {
-//        private List<In>
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()){
+            case R.id.egna_bilder_button :
+                Intent intent = new Intent(this, ClothesListActivity.class);
+                startActivityForResult(intent,ACTIVITY_RESULT_CODE);
+        }
+    }
 
-        private static int NUM_ITEMS = 3;
-
-        public MyPagerAdapter(FragmentManager fragmentManager) {
-            super(fragmentManager);
+    private void updateViewPager(){
+        portrait.setVisibility(View.GONE);
+        mViewPagerList = changeStringListToUri(mUriList);
+        if(!mViewPagerList.isEmpty()){
+            adapterViewPager = new MyPagerAdapter(mViewPagerList,this);
+            mViewPager.setAdapter(adapterViewPager);
+            mViewPager.setVisibility(View.VISIBLE);
         }
 
-        // Returns total number of pages
+    }
+
+    private ArrayList<Uri> changeStringListToUri(ArrayList<String> mUriList){
+        ArrayList<Uri> list = new ArrayList<Uri>();
+        for (String s: mUriList) {
+            Uri myUri = Uri.parse(s);
+            list.add(myUri);
+        }
+        return list;
+    }
+
+    private static class MyPagerAdapter extends PagerAdapter {
+        private ArrayList<Uri> dataList;
+        private LayoutInflater mInflater;
+        private Context mContext;
+
+        public MyPagerAdapter(ArrayList<Uri> dataList, Context context){
+            this.dataList = dataList;
+            this.mContext = context;
+            this.mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
+
         @Override
         public int getCount() {
-            return NUM_ITEMS;
+            return dataList.size();
         }
 
-        // Returns the fragment to display for that page
         @Override
-        public Fragment getItem(int position) {
-            return ImageFragment.newInstance(position,R.mipmap.minus10);
+        public boolean isViewFromObject(View view, Object object) {
+            return view == ((RelativeLayout) object);
+        }
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            Uri URI = dataList.get(position);
+            /*try {
+                Bitmap picture = MediaStore.Images.Media.getBitmap(mContext.getContentResolver(), URI);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }*/
+            View itemView = mInflater.inflate(R.layout.picture_list_row, container, false);
+            ImageView imageView = (ImageView) itemView.findViewById(R.id.picture_place_holder);
+            imageView.setImageURI(URI);
+            container.addView(itemView);
+
+            return itemView;
+        }
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            container.removeView((RelativeLayout) object);
         }
     }
 

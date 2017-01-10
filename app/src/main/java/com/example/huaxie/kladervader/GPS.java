@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -45,7 +46,7 @@ public class GPS implements GoogleApiClient.ConnectionCallbacks,LocationListener
     private static final int UPDATE_INTERVAL = 10000;
     private static final int FASTEST_INTERVAL = 5000;
 
-    public GPS(Activity activity,HasLocationListener listener) {
+    public GPS(AppCompatActivity activity,HasLocationListener listener) {
         mActivity = activity;
         mHasLocationListener = listener;
         checkPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION);
@@ -84,7 +85,7 @@ public class GPS implements GoogleApiClient.ConnectionCallbacks,LocationListener
         mGoogleApiClient.connect();
     }
 
-    private void checkPermission(Activity activity, final String locationPermission) {
+    private void checkPermission(AppCompatActivity activity, final String locationPermission) {
         if (mActivity != null) {
             Log.d(TAG, "checkPermission: ");
             if (PermissionUtil.checkPermission(activity, locationPermission)) {

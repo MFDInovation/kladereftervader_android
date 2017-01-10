@@ -19,6 +19,7 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 //import android.support.v13.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -34,12 +35,12 @@ public abstract class PermissionUtil {
     private static final String TAG = "permissionUtil";
     public static final String PERMISSION_PROMPT_LOCATION_DIALOG = "permission_prompt_location_dialog";
     public static final String PERMISSION_PROMPT_GPS_DIALOG = "permission_prompt_gps_dialog";
-    public static final String PERMISSION_PROMPT_CAMERA_DIALOG =
-            "permission_prompt_camera_dialog";
+    public static final String PERMISSION_PROMPT_STORAGE_DIALOG =
+            "permission_prompt_storage_dialog";
     protected static final int REQUEST_ACCESS_COURSE_LOCATION = 118;
-    protected static final int REQUEST_CAMERA = 128;
+    protected static final int REQUEST_READ_EXTERNAL_STORAGE = 138;
 
-    public static boolean checkPermission(Activity activity, final String whatPermission){
+    public static boolean checkPermission(AppCompatActivity activity, final String whatPermission){
         Log.d(TAG, "checkPermission: ing");
         if (ContextCompat.checkSelfPermission(activity, whatPermission)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -55,9 +56,13 @@ public abstract class PermissionUtil {
                         }
                         break;
                     case Manifest.permission.READ_EXTERNAL_STORAGE:
+                        if (PreferenceManager.getDefaultSharedPreferences(activity).getBoolean
+                                (PERMISSION_PROMPT_GPS_DIALOG, true)) {
+                            createStorageDialog(activity,Manifest.permission.READ_EXTERNAL_STORAGE);
+                        }
                         break;
                     case Manifest.permission.CAMERA:
-                        createCameraDialog(activity,Manifest.permission.CAMERA);
+                        //createCameraDialog(activity,Manifest.permission.CAMERA);
                         break;
                 }
 
@@ -69,31 +74,17 @@ public abstract class PermissionUtil {
                                 new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
                                 REQUEST_ACCESS_COURSE_LOCATION);
                         break;
+                    case Manifest.permission.READ_EXTERNAL_STORAGE:
+                        ActivityCompat.requestPermissions(activity,
+                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                                REQUEST_READ_EXTERNAL_STORAGE);
+                        break;
                 }
             }
         } else {
             return true;
         }
         return false;
-    }
-
-    public static boolean checkLegacyLocationPermission(Context context) {
-        boolean gps_enabled = false;
-        boolean network_enabled = false;
-        LocationManager lm = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
-        try {
-            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        } catch(Exception ex) {}
-
-        try {
-            network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-        } catch(Exception ex) {}
-
-        if(!gps_enabled && !network_enabled) {
-            // notify user
-            return false;
-        }
-        return true;
     }
 
     public static void createLocationDialog(final Activity activity, final String what) {
@@ -124,18 +115,18 @@ public abstract class PermissionUtil {
     }
 
 
-    private static void createCameraDialog(final Activity activity,final String what) {
+    private static void createStorageDialog(final Activity activity,final String what) {
         if (activity != null) {
             AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-            builder.setTitle(R.string.permission_request_camera_title);
-            builder.setMessage(R.string.request_permission_camera_text);
+            builder.setTitle(R.string.permission_request_storage_title);
+            builder.setMessage(R.string.request_permission_storage_text);
             builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.dismiss();
                     Log.d(TAG, "onClick: click ok, request again");
                     ActivityCompat.requestPermissions(activity,
-                            new String[]{what},REQUEST_CAMERA);
+                            new String[]{what},REQUEST_READ_EXTERNAL_STORAGE);
                 }
             });
             builder.setNegativeButton(R.string.permission_request_dont_ask_again, new DialogInterface.OnClickListener() {
@@ -143,7 +134,7 @@ public abstract class PermissionUtil {
                 public void onClick(DialogInterface dialog, int which) {
                     SharedPreferences.Editor edit = PreferenceManager.getDefaultSharedPreferences
                             (activity).edit();
-                    edit.putBoolean(PermissionUtil.PERMISSION_PROMPT_CAMERA_DIALOG, false);
+                    edit.putBoolean(PermissionUtil.PERMISSION_PROMPT_STORAGE_DIALOG, false);
                     edit.apply();
                     dialog.dismiss();
                 }
