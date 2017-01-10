@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     private GPS mgps;
     private Weather mCurrentWeather;
     private ProgressBar progressBar;
+    private ImageView portrait;
 
     protected static final int REQUEST_CHECK_SETTINGS = 108;
     protected static final int REQUEST_ACCESS_COURSE_LOCATION = 118;
@@ -51,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         baseBackground = (ImageView)findViewById(R.id.base_background);
         tempContainer = (RelativeLayout)findViewById(R.id.temp_container);
         progressBar = (ProgressBar)findViewById(R.id.progress_bar);
+        portrait = (ImageView)findViewById(R.id.portrait_container);
 
         //viewpagaer test
         /*ViewPager vpPager = (ViewPager) findViewById(R.id.myViewPager);
@@ -68,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
     @Override
     protected void onResume() {
+        progressBar.setVisibility(View.VISIBLE);
         super.onResume();
     }
 
@@ -118,8 +121,14 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 int height = (int)Math.round(imageHeight*0.22);
                 PercentRelativeLayout.LayoutParams params = new PercentRelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height);
                 tempContainer.setLayoutParams(params);
+                baseBackground.setVisibility(View.VISIBLE);
             }
         });
+        //update portrait
+        Closing closing = new Closing();
+        int portraitId = closing.getClosingImage(mCurrentWeather);
+        portrait.setImageResource(portraitId);
+        portrait.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -209,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         // Returns the fragment to display for that page
         @Override
         public Fragment getItem(int position) {
-            return ImageFragment.newInstance(position,R.mipmap.minusten);
+            return ImageFragment.newInstance(position,R.mipmap.minus10);
         }
     }
 

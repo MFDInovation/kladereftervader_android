@@ -17,7 +17,8 @@
             android:layout_width="match_parent"
             android:id="@+id/base_background"
             android:scaleType="centerInside"
-            android:adjustViewBounds="true" />
+            android:adjustViewBounds="true"
+            android:visibility="gone"/>
 
         <ProgressBar
             android:id="@+id/progress_bar"
@@ -29,7 +30,7 @@
         <RelativeLayout
             android:id="@+id/temp_container"
             android:layout_width="match_parent"
-            android:layout_height="150dp"
+            android:layout_height="0dp"
             android:layout_alignParentTop="true">
             <TextView
                 android:id="@+id/temp"
@@ -77,11 +78,12 @@
             </android.support.v4.view.ViewPager>
 
             <ImageView
-                android:id="@+id/person_container"
+                android:id="@+id/portrait_container"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_alignParentTop="true"
-                android:layout_toEndOf="@+id/myViewPager" />
+                android:layout_toEndOf="@+id/myViewPager"
+                android:visibility="gone"/>
 
         </RelativeLayout>
 

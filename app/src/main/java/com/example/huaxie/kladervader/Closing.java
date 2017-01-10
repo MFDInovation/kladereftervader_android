@@ -30,23 +30,25 @@ public class Closing {
     }
 
 
+    public int getClosingImage(Weather weather){
+        return getClosingImage(getStatus(weather));
+    }
 
-
-    public int getClosingImage(TempStatus status){
+    private int getClosingImage(TempStatus status){
         imageId = 0;
         switch (status){
             case mycketKallt: return R.mipmap.minus20;
-            case kallt: return R.mipmap.minusten;
-            case nollgradigt: return R.mipmap.zero;
-            case nollgradigtRegn: return R.mipmap.zerorain;
-            case kyligt: return R.mipmap.ten;
-            case kyligtRegn: return R.mipmap.tenrain;
+            case kallt: return R.mipmap.minus10;
+            case nollgradigt: return R.mipmap.plus0;
+            case nollgradigtRegn: return R.mipmap.plus0n;
+            case kyligt: return R.mipmap.plus0;
+            case kyligtRegn: return R.mipmap.plus0n;
             case varmt: return R.mipmap.minus20;
-            /*case .varmtRegn: return #imageLiteral(resourceName: "plus20N")
-            case .hett: return #imageLiteral(resourceName: "plus25")
-            case .hettRegn: return #imageLiteral(resourceName: "plus25N")
-            case .errorNetwork: return #imageLiteral(resourceName: "internet_error")
-            case .errorGPS: return #imageLiteral(resourceName: "gps_error")*/
+            case varmtRegn: return R.mipmap.plus20n;
+            case hett: return R.mipmap.plus25;
+            case hettRegn: return R.mipmap.plus25n;
+            case errorNetwork: return R.mipmap.internet_error;
+            case errorGPS: return R.mipmap.gps_error;
         }
         return imageId;
     }
