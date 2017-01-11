@@ -1,35 +1,28 @@
 package com.example.huaxie.kladervader;
 
 import android.Manifest;
-import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.PersistableBundle;
-import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ClothesListActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -56,9 +49,10 @@ public class ClothesListActivity extends AppCompatActivity implements View.OnCli
         addPictureButton.setOnClickListener(this);
         returnButton = (TextView)findViewById(R.id.return_button);
         returnButton.setOnClickListener(this);
-        if(savedInstanceState != null) //have saved list data
-        {
-            UriList = savedInstanceState.getStringArrayList("UriList");
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        Set<String> oldDataSet  = preferences.getStringSet("UriSet",null);
+        if(oldDataSet != null){
+            UriList = new ArrayList<String>(oldDataSet);
             adapterList = changeStringListToUri(UriList);
         }else {
             UriList = new ArrayList<String>();
@@ -105,14 +99,8 @@ public class ClothesListActivity extends AppCompatActivity implements View.OnCli
                             Uri URI = data.getData();
                             adapterList.add(URI);
                             UriList.add(URI.toString());
-                            runOnUiThread(new Runnable() {
-                                public void run() {
-                                    mListÁdapter.notifyDataSetChanged();
-                                }
-                            });
-                            /*imageViewLoad.setImageBitmap(BitmapFactory
-                                    .decodeFile(ImageDecode));
-                            imageViewLoad.invalidate();*/
+                            saveDataListInSharedPreferences(UriList);//mainactivity can also read data
+                            mListÁdapter.notifyDataSetChanged();
                         }
                         break;
                     case AppCompatActivity.RESULT_CANCELED:
@@ -149,12 +137,6 @@ public class ClothesListActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putStringArrayList("UriList",UriList);
-        super.onSaveInstanceState(outState);
-    }
-
     private ArrayList<Uri> changeStringListToUri(ArrayList<String> mUriList){
         ArrayList<Uri> list = new ArrayList<Uri>();
         for (String s: mUriList) {
@@ -162,6 +144,20 @@ public class ClothesListActivity extends AppCompatActivity implements View.OnCli
             list.add(myUri);
         }
         return list;
+    }
+
+    private void saveDataListInSharedPreferences(ArrayList<String> newList){
+        Set<String> myset = new HashSet<String>(newList);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putStringSet("UriSet",myset);
+        editor.apply();
+    }
+
+    private void deleteDataListInSharedPreferences(){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.clear().apply();
     }
 
 
@@ -179,20 +175,30 @@ public class ClothesListActivity extends AppCompatActivity implements View.OnCli
                 LayoutInflater inflater = LayoutInflater.from(getContext());
                 baseview = inflater.inflate(R.layout.picture_list_row, null);
             }
-            Uri uri = getItem(position);
+            final Uri uri = getItem(position);
             if(uri != null) {
                 ImageView image = (ImageView)baseview.findViewById(R.id.picture_place_holder);
-                image.setImageURI(uri);
+                String imagePath = BitmapWorkerTask.getPathFromImageUri(uri,getContext());
+                BitmapWorkerTask ImageLoader = new BitmapWorkerTask(image);
+                ImageLoader.execute(imagePath);
                 TextView title = (TextView)baseview.findViewById(R.id.row_title);
                 title.setText(R.string.title);
                 TextView delete = (TextView)baseview.findViewById(R.id.delete_button);
                 delete.setText(R.string.delete);
+                delete.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        adapterList.remove(uri);
+                        UriList.remove(uri.toString());
+                        mListÁdapter.notifyDataSetChanged();
+                        if(UriList.size()!= 0){
+                            saveDataListInSharedPreferences(UriList);//mainactivity can also read data
+                        }else {
+                            deleteDataListInSharedPreferences();
+                        }
+                    }
+                });
             }
             return baseview;
         }
-
-
-
-
     }
 }

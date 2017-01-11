@@ -4,17 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.preference.PreferenceManager;
-import android.provider.MediaStore;
 import android.support.percent.PercentRelativeLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -29,10 +22,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 
@@ -51,12 +42,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     private ArrayList<String> mUriList;
     private ArrayList<Uri> mViewPagerList;
     private ViewPager mViewPager;
-    private ArrayList<String> newDataUriList;
 
-    protected static final int REQUEST_CHECK_SETTINGS = 108;
     protected static final int REQUEST_ACCESS_COURSE_LOCATION = 118;
-    protected static final int REQUEST_CAMERA = 128;
-    protected static final int REQUEST_READ_EXTERNAL_STORAGE = 138;
     protected static final int ACTIVITY_RESULT_CODE = 1;
 
     private PagerAdapter adapterViewPager;
@@ -77,8 +64,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         mViewPager = (ViewPager) findViewById(R.id.myViewPager);
 
 
-        mgps = new GPS(this,hasLocationListener);
-        egnaBilderButton.setOnClickListener(this);
+
         progressBar.setVisibility(View.VISIBLE);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -89,6 +75,9 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         }else {
             mUriList = new ArrayList<String>();
         }
+
+        mgps = new GPS(this,hasLocationListener);
+        egnaBilderButton.setOnClickListener(this);
     }
 
 
@@ -96,19 +85,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     protected void onStart() {
         super.onStart();
     }
-
-
-    /*@Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        if(savedInstanceState != null){
-            mUriList = savedInstanceState.getStringArrayList("mUriList");
-            mViewPagerList = changeStringListToUri(mUriList);
-            updateViewPager();
-        }else {
-            mViewPagerList = new ArrayList<Uri>();
-        }
-        super.onRestoreInstanceState(savedInstanceState);
-    }*/
 
     @Override
     protected void onResume() {
@@ -152,13 +128,14 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         WeatherSymbol.WeatherStatus status = mCurrentWeather.getWeatherStatus();
         WeatherImage weatherImage = new WeatherImage();
         int id = weatherImage.getWeatherSymbolImage(status,weatherImage.getCurrentSeason());
+        Log.d(TAG, "updateLayout: id" + id);
         baseBackground.setImageResource(id);
         baseBackground.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
                 baseBackground.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 int imageHeight = baseBackground.getHeight();
-                Log.d(TAG, "onstart: imageHeight" + imageHeight);
+                Log.d(TAG, "update: imageHeight" + imageHeight);
                 int height = (int)Math.round(imageHeight*0.22);
                 PercentRelativeLayout.LayoutParams params = new PercentRelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height);
                 tempContainer.setLayoutParams(params);
@@ -219,9 +196,15 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             case ACTIVITY_RESULT_CODE:
                 switch (resultCode) {
                     case AppCompatActivity.RESULT_OK:
-                        newDataUriList = data.getStringArrayListExtra("UriList");
-                        mergeOldAndNewDataList(newDataUriList);
-                        updateViewPager();
+                        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+                        Set<String> oldDataSet  = preferences.getStringSet("UriSet",null);
+                        if(oldDataSet != null){
+                            mUriList = new ArrayList<String>(oldDataSet);
+                            updateViewPager();
+                        }else {
+                            mUriList = new ArrayList<String>();
+                            recoverImageView();
+                        }
                         break;
                 }
         }
@@ -269,15 +252,11 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             mViewPager.setAdapter(adapterViewPager);
             mViewPager.setVisibility(View.VISIBLE);
         }
-        saveUriList();
     }
 
-    private void saveUriList(){
-        Set<String> myset = new HashSet<String>(mUriList);
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putStringSet("UriSet",myset);
-        editor.apply();
+    private void recoverImageView(){
+        mViewPager.setVisibility(View.GONE);
+        portrait.setVisibility(View.VISIBLE);
     }
 
     private ArrayList<Uri> changeStringListToUri(ArrayList<String> mUriList){
@@ -288,24 +267,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         }
         return list;
     }
-
-    private void mergeOldAndNewDataList(ArrayList<String> newList){
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        Set<String> oldDataSet  = preferences.getStringSet("UriSet",null);
-        if(oldDataSet != null){
-            mUriList = new ArrayList<String>(oldDataSet);
-            mUriList.addAll(newList);
-        }else {
-            mUriList = new ArrayList<String>();
-            mUriList.addAll(newList);
-        }
-    }
-
-    /*@Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putStringArrayList("mUriList",mUriList);
-        super.onSaveInstanceState(outState);
-    }*/
 
     private static class MyPagerAdapter extends PagerAdapter {
         private ArrayList<Uri> dataList;
