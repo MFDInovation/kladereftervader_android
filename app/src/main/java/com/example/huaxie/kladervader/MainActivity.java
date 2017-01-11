@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.provider.MediaStore;
 import android.support.percent.PercentRelativeLayout;
 import android.support.v4.app.Fragment;
@@ -73,8 +74,13 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
         mgps = new GPS(this,hasLocationListener);
         egnaBilderButton.setOnClickListener(this);
-
-        mViewPagerList = new ArrayList<Uri>();
+        if(savedInstanceState != null){ //if we have previous setting
+            mUriList = savedInstanceState.getStringArrayList("mUriList");
+            mViewPagerList = changeStringListToUri(mUriList);
+            updateViewPager();
+        }else {
+            mViewPagerList = new ArrayList<Uri>();
+        }
     }
 
 
@@ -234,6 +240,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     }
 
     private void updateViewPager(){
+        progressBar.setVisibility(View.INVISIBLE);
         portrait.setVisibility(View.GONE);
         mViewPagerList = changeStringListToUri(mUriList);
         if(!mViewPagerList.isEmpty()){
@@ -251,6 +258,12 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             list.add(myUri);
         }
         return list;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putStringArrayList("mUriList",mUriList);
+        super.onSaveInstanceState(outState);
     }
 
     private static class MyPagerAdapter extends PagerAdapter {

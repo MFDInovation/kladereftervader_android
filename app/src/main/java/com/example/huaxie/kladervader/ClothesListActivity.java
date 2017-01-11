@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.PersistableBundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -19,6 +20,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
@@ -37,8 +39,7 @@ public class ClothesListActivity extends AppCompatActivity implements View.OnCli
     private ImageView imageViewLoad;
     private final static int IMG_RESULT = 1024;
     protected static final int REQUEST_READ_EXTERNAL_STORAGE = 138;
-    private Bitmap picture;
-    private ArrayList<Bitmap> pictureList;
+    private ArrayList<Uri> adapterList;
     private MyListViewAdapter mListÁdapter;
     private ArrayList<String> UriList;
     private TextView returnButton;
@@ -51,16 +52,21 @@ public class ClothesListActivity extends AppCompatActivity implements View.OnCli
         setSupportActionBar(myToolbar);
 
         imageViewLoad = (ImageView)findViewById(R.id.imageViewLoad);
-        picture = null;
         addPictureButton = (TextView) findViewById(R.id.add_picture_button);
         addPictureButton.setOnClickListener(this);
         returnButton = (TextView)findViewById(R.id.return_button);
         returnButton.setOnClickListener(this);
-        UriList = new ArrayList<String>();
-        pictureList = new ArrayList<Bitmap>();
+        if(savedInstanceState != null) //have saved list data
+        {
+            UriList = savedInstanceState.getStringArrayList("UriList");
+            adapterList = changeStringListToUri(UriList);
+        }else {
+            UriList = new ArrayList<String>();
+            adapterList = new ArrayList<Uri>();
+        }
         ListView myListView = (ListView) findViewById(R.id.picture_list_view);
         myListView.setEmptyView(findViewById(R.id.empty));
-        mListÁdapter = new MyListViewAdapter(this,R.id.picture_list_view,pictureList);
+        mListÁdapter = new MyListViewAdapter(this,R.id.picture_list_view,adapterList);
         myListView.setAdapter(mListÁdapter);
     }
 
@@ -97,18 +103,7 @@ public class ClothesListActivity extends AppCompatActivity implements View.OnCli
                     case AppCompatActivity.RESULT_OK:
                         if(data != null){
                             Uri URI = data.getData();
-                            String[] FILE = { MediaStore.Images.Media.DATA };
-                            Cursor cursor = getContentResolver().query(URI,
-                                    FILE, null, null, null);
-
-                            cursor.moveToFirst();
-
-                            int columnIndex = cursor.getColumnIndex(FILE[0]);
-                            ImageDecode = cursor.getString(columnIndex);
-                            cursor.close();
-                            picture = BitmapFactory
-                                    .decodeFile(ImageDecode);
-                            pictureList.add(picture);
+                            adapterList.add(URI);
                             UriList.add(URI.toString());
                             runOnUiThread(new Runnable() {
                                 public void run() {
@@ -148,14 +143,31 @@ public class ClothesListActivity extends AppCompatActivity implements View.OnCli
                 Intent intent = new Intent();
                 intent.putExtra("UriList",UriList);
                 setResult(RESULT_OK,intent);
+                mListÁdapter.clear();
                 finish();
                 break;
         }
     }
 
-    private class MyListViewAdapter extends ArrayAdapter<Bitmap> {
-        public MyListViewAdapter(Context context, int resourceId, ArrayList<Bitmap> pictureList) {
-            super(context, resourceId, pictureList);
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putStringArrayList("UriList",UriList);
+        super.onSaveInstanceState(outState);
+    }
+
+    private ArrayList<Uri> changeStringListToUri(ArrayList<String> mUriList){
+        ArrayList<Uri> list = new ArrayList<Uri>();
+        for (String s: mUriList) {
+            Uri myUri = Uri.parse(s);
+            list.add(myUri);
+        }
+        return list;
+    }
+
+
+    private class MyListViewAdapter extends ArrayAdapter<Uri> {
+        public MyListViewAdapter(Context context, int resourceId, ArrayList<Uri> adapterList) {
+            super(context, resourceId, adapterList);
         }
 
         @NonNull
@@ -167,10 +179,10 @@ public class ClothesListActivity extends AppCompatActivity implements View.OnCli
                 LayoutInflater inflater = LayoutInflater.from(getContext());
                 baseview = inflater.inflate(R.layout.picture_list_row, null);
             }
-            Bitmap picture = getItem(position);
-            if(picture != null) {
+            Uri uri = getItem(position);
+            if(uri != null) {
                 ImageView image = (ImageView)baseview.findViewById(R.id.picture_place_holder);
-                image.setImageBitmap(picture);
+                image.setImageURI(uri);
                 TextView title = (TextView)baseview.findViewById(R.id.row_title);
                 title.setText(R.string.title);
                 TextView delete = (TextView)baseview.findViewById(R.id.delete_button);
@@ -178,6 +190,7 @@ public class ClothesListActivity extends AppCompatActivity implements View.OnCli
             }
             return baseview;
         }
+
 
 
 
