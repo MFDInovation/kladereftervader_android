@@ -13,8 +13,14 @@ public class Weather {
     public double windSpeed;
     public WeatherSymbol weatherSymbol;
 
-    public Weather(){
-        Weather(0,0,0,0);
+    int testSymbolvalue = 15;
+    int testTemp = -10;
+    double testwind = 0.1;
+    double testrain = 0.1;
+
+    public Weather(){Weather(0,0,0,0);}
+    public Weather(String test){
+        Weather(testSymbolvalue,testTemp,testrain,testwind);
     }
 
     public void Weather(int symbol, double temperature, double rainfall, double windSpeed){
@@ -31,7 +37,7 @@ public class Weather {
 
     @Override
     public String toString() {
-        return "symbol: "+symbol + "temperature: " + temperature + "rainfall: " + rainfall + "windSpeed :" +windSpeed;
+        return "symbol: "+symbol + "temperature: " + temperature + "rainfall: " + rainfall + "windSpeed :" +windSpeed + "weathersymbol" + getWeatherStatus();
     }
 
     public int getSymbol() {

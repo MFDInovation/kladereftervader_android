@@ -1,30 +1,44 @@
 package com.example.huaxie.kladervader;
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.preference.PreferenceManager;
+import android.print.PrintAttributes;
 import android.support.percent.PercentRelativeLayout;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+
 
 
 public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener,View.OnClickListener{
@@ -42,6 +56,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     private ArrayList<String> mUriList;
     private ArrayList<Uri> mViewPagerList;
     private ViewPager mViewPager;
+
+    private WeatherAnimation mWeatherAnimation = null;
 
     protected static final int REQUEST_ACCESS_COURSE_LOCATION = 118;
     protected static final int ACTIVITY_RESULT_CODE = 1;
@@ -120,6 +136,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     }
 
     private void updateLayout(Weather mCurrentWeather){
+        Log.d(TAG, "updateLayout: mycurrentWeather :" + mCurrentWeather.toString());
         //update temp
         double temp = mCurrentWeather.getTemperature();
         String temperature = (int)Math.round(temp) + "°";
@@ -147,6 +164,9 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         int portraitId = clothing.getClosingImage(mCurrentWeather);
         portrait.setImageResource(portraitId);
         portrait.setVisibility(View.VISIBLE);
+
+        //start animation
+        startAnimation(mCurrentWeather);
     }
 
     @Override
@@ -307,4 +327,30 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         }
     }
 
+
+    private Handler mHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            WeatherAnimation.createRandomImage(R.mipmap.snow,MainActivity.this,baseContainer,mWindowHeight,mWindowWidth);
+        }
+
+    };
+
+    private class AnimTimerTask extends TimerTask {
+        @Override
+        public void run() {
+            mHandler.sendEmptyMessage(0x001);
+        }
+    }
+
+    private int mWindowHeight;
+    private int mWindowWidth;
+    private void startAnimation(Weather mCurrentWeather){
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        mWindowHeight = displaymetrics.heightPixels;
+        mWindowWidth = displaymetrics.widthPixels;
+        new Timer().schedule(new AnimTimerTask(), 0, 500);
+    }
 }
