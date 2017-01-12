@@ -13,17 +13,15 @@ public class Weather {
     public double windSpeed;
     public WeatherSymbol weatherSymbol;
 
-    int testSymbolvalue = 15;
-    int testTemp = -10;
-    double testwind = 0.1;
-    double testrain = 0.1;
 
-    public Weather(){Weather(0,0,0,0);}
-    public Weather(String test){
-        Weather(testSymbolvalue,testTemp,testrain,testwind);
-    }
 
-    public void Weather(int symbol, double temperature, double rainfall, double windSpeed){
+    public Weather(){ new Weather(0,0,0,0);};
+
+//    public Weather(String test){
+//        new Weather(testSymbolvalue,testTemp,testrain,testwind);
+//    }
+
+    public Weather(int symbol, double temperature, double rainfall, double windSpeed){
         this.symbol = symbol;
         this.temperature = temperature;
         this.rainfall = rainfall;

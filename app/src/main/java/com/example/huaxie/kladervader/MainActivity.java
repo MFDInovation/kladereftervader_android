@@ -332,7 +332,12 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            WeatherAnimation.createRandomImage(R.mipmap.snow,MainActivity.this,baseContainer,mWindowHeight,mWindowWidth);
+            int testSymbolvalue = 8;
+            int testTemp = -10;
+            double testwind = 0.1;
+            double testrain = 0.1;
+            Weather weather = new Weather(testSymbolvalue,testTemp,testrain,testwind);
+            WeatherAnimation.createRandomImage(weather,MainActivity.this,baseContainer,mWindowHeight,mWindowWidth);
         }
 
     };
@@ -340,7 +345,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     private class AnimTimerTask extends TimerTask {
         @Override
         public void run() {
-            mHandler.sendEmptyMessage(0x001);
+            mHandler.sendEmptyMessage(0x11);
         }
     }
 
@@ -353,4 +358,5 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         mWindowWidth = displaymetrics.widthPixels;
         new Timer().schedule(new AnimTimerTask(), 0, 500);
     }
+
 }
