@@ -10,6 +10,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.RelativeLayout;
@@ -19,83 +24,114 @@ import java.util.ArrayList;
 import static com.example.huaxie.kladervader.JsonParser.TAG;
 import static com.example.huaxie.kladervader.WeatherSymbol.WeatherStatus.Rain;
 import static com.example.huaxie.kladervader.WeatherSymbol.WeatherStatus.Rainshowers;
+import static com.example.huaxie.kladervader.WeatherSymbol.WeatherStatus.Thunder;
+import static com.example.huaxie.kladervader.WeatherSymbol.WeatherStatus.Thunderstorm;
 
 /**
  * Created by huaxie on 2017-01-11.
  */
 
 public class WeatherAnimation {
-    /*private Weather mCurrentWeather;
-    private Context mContext;
-    private int mWindowHeight;
-    private int mWindowWidth;
-    private ImageView animationItem;
-    private PercentRelativeLayout fatherContainer;
-    private int intensity;
-    private ObjectAnimator objectAnimator;
 
-    public WeatherAnimation(Weather mCurrentWeather, Context mContext, PercentRelativeLayout baseContainer){
-        this.mCurrentWeather = mCurrentWeather;
-        this.mContext = mContext;
-        this.fatherContainer = baseContainer;
-        getWindowSize();
-    }*/
-
-
-   /* public void start(){
-//        createRandomImage(resID);
-//        animationItem.setImageResource(resID);
-        objectAnimator = ObjectAnimator.ofFloat(animationItem, "translationY",
-                0, mWindowHeight);
-        objectAnimator.setDuration(6000);
-        /*objectAnimator.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animator) {}
-
-            @Override
-            public void onAnimationEnd(Animator animator) {
-                animationItem.getAnimation().cancel();
-                fatherContainer.removeView(animationItem);
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animator) {}
-
-            @Override
-            public void onAnimationRepeat(Animator animator) {
-
-            }
-        });
-
-//        objectAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-//            @Override
-//            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-//
-//            }
-//        });
-        objectAnimator.start();
-    }*/
     final static String TAG = "Animation";
     public static void createRandomImage(Weather weather, AppCompatActivity activity,
                                   PercentRelativeLayout fatherContainer, int height, int width){
-        int[] resId = getResourceId(weather);
+        if(weather.getWeatherStatus() == Thunder || weather.getWeatherStatus()==Thunderstorm){
+            doThunderAnimation(weather,activity,fatherContainer,height,width);
+        }else {
+            ArrayList values = getAnimationValues(weather);
+            if(values != null){
+                for (int i = 0; i < values.size(); i++) {
+                    AnimationValues value = (AnimationValues) values.get(i);
+                    int randomStartpoint = (int)Math.round(Math.random()*width);
+                    ImageView animationItem= new ImageView(activity);
+                    RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    params.setMarginStart(randomStartpoint);
+                    animationItem.setLayoutParams(params);
+                    animationItem.setImageResource(value.resId);
+                    fatherContainer.addView(animationItem);
+                    startAnimator(activity,animationItem,value,height,
+                            fatherContainer);
+
+                }
+            }
+        }
+    }
+
+    private static void doThunderAnimation(Weather weather,AppCompatActivity activity,
+                                           PercentRelativeLayout fatherContainer, int height, int width){
         int randomStartpoint = (int)Math.round(Math.random()*width);
         ImageView animationItem= new ImageView(activity);
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.setMarginStart(randomStartpoint);
         animationItem.setLayoutParams(params);
-        animationItem.setImageResource(resId[0]);
+        animationItem.setImageResource(R.mipmap.lightning);
         fatherContainer.addView(animationItem);
-        startAnimator(activity,animationItem, height,
-                fatherContainer);
-
-
+        AnimationSet set = new AnimationSet(true);
+        addThunderAnimatior(0.01f,1.0f,animationItem,set,100,fatherContainer,activity);
+        addThunderAnimatior(1.0f,0.3f,animationItem,set,200,fatherContainer,activity);
+        addThunderAnimatior(0.3f,1.0f,animationItem,set,100,fatherContainer,activity);
+        addThunderAnimatior(1.0f,0f,animationItem,set,800,fatherContainer,activity);
+        animationItem.startAnimation(set);
     }
 
-    private static void startAnimator(final AppCompatActivity activity, final ImageView animationItem, int height, final PercentRelativeLayout fatherContainer){
+    private static void addThunderAnimatior(float startAlpha, float endAlpha, final ImageView animationItem, AnimationSet set, int duration,
+                                            final PercentRelativeLayout fatherContainer, final AppCompatActivity activity){
+        AlphaAnimation animation1 = new AlphaAnimation(startAlpha, endAlpha);
+        animation1.setDuration(duration);
+        animation1.setFillAfter(true);
+        animation1.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {}
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        fatherContainer.removeView(animationItem);
+                    }
+                });
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {}
+        });
+        set.addAnimation(animation1);
+    }
+
+    private static void startAnimator(final AppCompatActivity activity, final ImageView animationItem,AnimationValues value, int height, final PercentRelativeLayout fatherContainer){
+        /*TranslateAnimation newAnimation = new TranslateAnimation(animationItem.getX(),animationItem.getX(),0,fatherContainer.getBottom());
+        newAnimation.setDuration(value.duration);
+        newAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                fatherContainer.post(new Runnable() {
+                    public void run () {
+                        activity.runOnUiThread(new Runnable() {
+                            public void run() {
+                                fatherContainer.removeView(animationItem);
+                            }
+                        });
+                    }
+                });
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        animationItem.startAnimation(newAnimation);*/
         ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(animationItem, "translationY",
                 0,height);
-        objectAnimator.setDuration(6000);
+        objectAnimator.setDuration(value.duration);
+        objectAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
         objectAnimator.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animator) {}
@@ -126,99 +162,48 @@ public class WeatherAnimation {
         objectAnimator.start();
     }
 
-//    public static int[] getResourceId(Weather weather){
-//        int[] idList = new int[2];
-//        return idList;
-//    }
-
-//    private void getWindowSize(){
-//        DisplayMetrics displaymetrics = mContext.getResources().getDisplayMetrics();
-//        mWindowWidth = displaymetrics.widthPixels;
-//        mWindowHeight = displaymetrics.heightPixels;
-//    }
-
-//    public void start(){
-//        double rainfall;
-//        double windSpeed;
-//        if(mCurrentWeather.getRainfall() < 0.1){return;
-//        } else{
-//            // make sure the animation is visible, even for low amounts
-//            rainfall = Math.max(mCurrentWeather.getRainfall(),0.7);
-//            windSpeed = Math.min(mCurrentWeather.getRainfall()/3,2);
-//        }
-//        WeatherSymbol.WeatherStatus status = mCurrentWeather.getWeatherStatus();
-//        switch (status){
-//            case Rain:
-//                createAnimation(R.mipmap.rain, 400);
-//                setIntensity((int)Math.min(rainfall*10,100.0));
-//                break;
-//            case Rainshowers:
-//                createAnimation(R.mipmap.rain, 400);
-//                setIntensity((int)Math.min(rainfall*10,100.0));
-//                break;
-//            case Snowfall:
-//                createAnimation(R.mipmap.snow, 6000);
-////                setIntensity((int)Math.min(rainfall*20,200.0));
-//                break;
-//            case Snowshowers:
-//                createAnimation(R.mipmap.snow, 6000);
-//                setIntensity((int)Math.min(rainfall*20,200.0));
-//                break;
-//            case Sleet:
-////                createAnimation(R.mipmap.rain, 400);
-////                createAnimation(R.mipmap.snow, 6000);
-//                break;
-//            case Lightsleet:
-//                break;
-//            case Thunder:
-//                break;
-//            case Thunderstorm:
-//                break;
-//            default:
-//                break;
-//        }
-//    }
-//
-    public static ArrayList<AnimationValues> getResourceId(Weather mCurrentWeather){
-        /*if(mCurrentWeather.rainfall < 0.1)
-        {
-            return null;
-        }*/
-        double rainfall = Math.max(mCurrentWeather.rainfall,0.7) ;
-        WeatherSymbol.WeatherStatus status = mCurrentWeather.getWeatherStatus();
-        ArrayList<AnimationValues> values = null;
+    public static ArrayList<AnimationValues> getAnimationValues(Weather mCurrentWeather){
+        ArrayList<AnimationValues> values = new ArrayList<>();
         int windSpeed = (int)Math.round(Math.min(mCurrentWeather.windSpeed/3,2));
         int intensity;
-        switch (status){
-            case Snowfall:
-                intensity = (int)(Math.round(Math.min(rainfall*20, 200.0)));
-                values.add(new AnimationValues(R.mipmap.snow,6000,windSpeed,intensity));
-                break;
-            case Snowshowers:
-                returnv[0] = R.mipmap.snow;
-                break;
-            case Rain:
-                returnv[0] = R.mipmap.rain;
-                break;
-            case Rainshowers:
-                returnv[0] = R.mipmap.rain;
-                break;
-            case Sleet:
-                returnv[0] = R.mipmap.snow;
-                returnv[1] = R.mipmap.rain;
-                break;
-            case Lightsleet:
-                returnv[0] = R.mipmap.snow;
-                returnv[1] = R.mipmap.rain;
-                break;
-            case Thunder:
-//                returnv[0] = R.mipmap.lightning;
-                break;
-            case Thunderstorm:
-//                returnv[0] = R.mipmap.lightning;
-                break;
+        if(mCurrentWeather.rainfall < 0.1)
+        {
+            return null;
+        }else{
+            double rainfall = Math.max(mCurrentWeather.rainfall,0.7) ;
+            WeatherSymbol.WeatherStatus status = mCurrentWeather.getWeatherStatus();
+            switch (status){
+                case Snowfall:
+                    intensity = (int)(Math.round(Math.min(rainfall*20, 200.0)));
+                    values.add(new AnimationValues(R.mipmap.snow,6000,windSpeed,intensity));
+                    break;
+                case Snowshowers:
+                    intensity = (int)(Math.round(Math.min(rainfall*20, 200.0)));
+                    values.add(new AnimationValues(R.mipmap.snow,6000,windSpeed,intensity));
+                    break;
+                case Rain:
+                    intensity = (int)(Math.round(Math.min(rainfall*10, 100.0)));
+                    values.add(new AnimationValues(R.mipmap.rain,400,windSpeed,intensity));
+                    break;
+                case Rainshowers:
+                    intensity = (int)(Math.round(Math.min(rainfall*10, 100.0)));
+                    values.add(new AnimationValues(R.mipmap.rain,400,windSpeed,intensity));
+                    break;
+                case Sleet:
+                    intensity = (int)(Math.round(Math.min(rainfall*5, 50.0)));
+                    values.add(new AnimationValues(R.mipmap.snow,6000,windSpeed,intensity));
+                    intensity = (int)(Math.round(Math.min(rainfall*10, 100.0)));
+                    values.add(new AnimationValues(R.mipmap.rain,400,windSpeed,intensity));
+                    break;
+                case Lightsleet:
+                    intensity = (int)(Math.round(Math.min(rainfall*5, 50.0)));
+                    values.add(new AnimationValues(R.mipmap.snow,6000,windSpeed,intensity));
+                    intensity = (int)(Math.round(Math.min(rainfall*10, 100.0)));
+                    values.add(new AnimationValues(R.mipmap.rain,400,windSpeed,intensity));
+                    break;
+            }
         }
-        return returnv;
+        return values;
     }
 
     public static class AnimationValues{
@@ -234,12 +219,4 @@ public class WeatherAnimation {
             this.intensity = intensity;
         }
     }
-//
-//    private void setIntensity(int value){
-//        this.intensity = value;
-//    }
-//
-//    public int getIntensity() {
-//        return intensity;
-//    }
 }

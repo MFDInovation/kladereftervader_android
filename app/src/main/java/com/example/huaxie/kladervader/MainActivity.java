@@ -332,7 +332,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            int testSymbolvalue = 8;
+            int testSymbolvalue = 13;
             int testTemp = -10;
             double testwind = 0.1;
             double testrain = 0.1;
