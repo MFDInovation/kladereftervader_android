@@ -12,6 +12,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * Created by huaxie on 2017-01-03.
@@ -102,11 +103,16 @@ public class JsonParser {
     }
 
     public void getValidDateTime(){
-        startDate = new Date();
+        TimeZone timeZone = TimeZone.getDefault();
+        int offSet = timeZone.getRawOffset();
         Calendar calendar = Calendar.getInstance();
-        calendar.setTime(startDate);
+        calendar.add(Calendar.MILLISECOND,-offSet);
+        startDate = calendar.getTime();
+
         calendar.add(Calendar.HOUR, 8);
         endDate = calendar.getTime();
+
+        Log.d(TAG, "getValidDateTime: starttime" + startDate + "endDate " + endDate);
     }
 
 }
