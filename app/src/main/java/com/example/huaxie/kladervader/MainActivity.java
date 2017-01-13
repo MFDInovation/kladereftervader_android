@@ -332,22 +332,34 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            int testSymbolvalue = 13;
+            int testSymbolvalue = 14;
             int testTemp = -10;
-            double testwind = 0.1;
+            double testwind = 2.9;
             double testrain = 0.1;
             Weather weather = new Weather(testSymbolvalue,testTemp,testrain,testwind);
-            WeatherAnimation.createRandomImage(weather,MainActivity.this,baseContainer,mWindowHeight,mWindowWidth);
+            Bundle bundle = msg.getData();
+            String status = bundle.getString("status");
+            if(status.equals("snow")){
+                WeatherAnimation.snowAnimation(weather,MainActivity.this,baseContainer,mWindowHeight,mWindowWidth);
+            }else if (status.equals("rain")){
+                WeatherAnimation.rainAnimation(weather,MainActivity.this,baseContainer,mWindowHeight,mWindowWidth);
+            }else if (status.equals("thunder")){
+                WeatherAnimation.thunderAnimation(weather,MainActivity.this,baseContainer,mWindowHeight,mWindowWidth);
+            }
         }
 
     };
 
-    private class AnimTimerTask extends TimerTask {
+    public Handler getHandler(){
+        return mHandler;
+    }
+
+    /*public class AnimTimerTask extends TimerTask {
         @Override
         public void run() {
             mHandler.sendEmptyMessage(0x11);
         }
-    }
+    }*/
 
     private int mWindowHeight;
     private int mWindowWidth;
@@ -356,7 +368,12 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
         mWindowHeight = displaymetrics.heightPixels;
         mWindowWidth = displaymetrics.widthPixels;
-        new Timer().schedule(new AnimTimerTask(), 0, 500);
+        int testSymbolvalue = 14;
+        int testTemp = -10;
+        double testwind = 2.9;
+        double testrain = 0.1;
+        Weather weather = new Weather(testSymbolvalue,testTemp,testrain,testwind);
+        WeatherAnimation.setAnimationInterval(this,weather);
     }
 
 }
