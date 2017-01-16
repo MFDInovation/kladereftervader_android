@@ -41,8 +41,8 @@ public class Clothing {
             case kallt: return R.mipmap.minus10;
             case nollgradigt: return R.mipmap.plus0;
             case nollgradigtRegn: return R.mipmap.plus0n;
-            case kyligt: return R.mipmap.plus0;
-            case kyligtRegn: return R.mipmap.plus0n;
+            case kyligt: return R.mipmap.plus10;
+            case kyligtRegn: return R.mipmap.plus10n;
             case varmt: return R.mipmap.plus20;
             case varmtRegn: return R.mipmap.plus20n;
             case hett: return R.mipmap.plus25;

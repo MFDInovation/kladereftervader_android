@@ -53,17 +53,17 @@ public class DemoActivity extends AppCompatActivity implements ViewPager.OnPageC
     public ArrayList<Weather> getFakeWeather(){
         fakeList = new ArrayList<>();
         Weather fakeWeather;
-        fakeWeather= new Weather(WeatherSymbol.WeatherStatus.ClearSky,10.0,0.1,0.1); //spring
+        fakeWeather= new Weather(WeatherSymbol.WeatherStatus.ClearSky,3.0,0.1,0.1); //spring
         fakeList.add(fakeWeather);
         fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Lightsleet, 1.0,0.75,3); //spring rain and snow
         fakeList.add(fakeWeather);
-        fakeWeather = new Weather(WeatherSymbol.WeatherStatus.ClearSky, 20.0,0.0,0.0); //summer
+        fakeWeather = new Weather(WeatherSymbol.WeatherStatus.ClearSky, 25.0,0.0,0.0); //summer
         fakeList.add(fakeWeather);
-        fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Thunder,25.0,0.7,0.0); //summer Thunder and rain
+        fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Thunder,20.0,0.7,0.0); //summer Thunder and rain
         fakeList.add(fakeWeather);
-        fakeWeather = new Weather(WeatherSymbol.WeatherStatus.ClearSky, 15.0, 0.1,0.1); // autumn
+        fakeWeather = new Weather(WeatherSymbol.WeatherStatus.ClearSky, 14.0, 0.1,0.1); // autumn
         fakeList.add(fakeWeather);
-        fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Rain,5.0, 0.9, 6); //autumn rain
+        fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Rain,10.0, 0.9, 6); //autumn rain
         fakeList.add(fakeWeather);
         fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Snowshowers, -9, 0.7, 4); //winter
         fakeList.add(fakeWeather);
