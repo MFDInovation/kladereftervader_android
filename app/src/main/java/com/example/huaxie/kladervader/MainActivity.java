@@ -47,7 +47,11 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     private ViewPager mViewPager;
     private int tempContainerHeight;
     private String tempKey;
+    private int demoCounter = 0;
     public final static String ExtraMessage = "height";
+    private Runnable thunderRunnable = null;
+    private Runnable rainRunnable = null;
+    private Runnable snowRunnable = null;
 
     private WeatherAnimation mWeatherAnimation = null;
 
@@ -265,6 +269,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 break;
             case R.id.demo_button:
                 Log.d(TAG, "onClick: demobutton");
+                demoCounter++;
+                startDemo();
                 /*Intent demoIntent = new Intent(this, DemoActivity.class);
                 demoIntent.putExtra(ExtraMessage,tempContainerHeight);
                 startActivity(demoIntent);
@@ -349,7 +355,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             final int windspeed = bundle.getInt("windspeed");
             if(status.equals("snow")){
                 Log.d(TAG, "handleMessage: snow");
-                mHandler.post(new Runnable() {
+                mHandler.post(snowRunnable = new Runnable() {
                     @Override
                     public void run() {
                         WeatherAnimation.snowAnimation(windspeed,MainActivity.this,baseContainer,mWindowHeight,mWindowWidth);
@@ -359,7 +365,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
             }else if (status.equals("rain")){
                 Log.d(TAG, "handleMessage: rain");
-                mHandler.post(new Runnable() {
+                mHandler.post(rainRunnable = new Runnable() {
                     @Override
                     public void run() {
                         WeatherAnimation.rainAnimation(windspeed,MainActivity.this,baseContainer,mWindowHeight,mWindowWidth);
@@ -369,7 +375,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
             }else if (status.equals("thunder")){
                 Log.d(TAG, "handleMessage: thunder");
-                mHandler.post(new Runnable() {
+                mHandler.post(thunderRunnable = new Runnable() {
                     @Override
                     public void run() {
                         WeatherAnimation.thunderAnimation(MainActivity.this,baseContainer,mWindowHeight,mWindowWidth);
@@ -392,15 +398,68 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
         mWindowHeight = displaymetrics.heightPixels;
         mWindowWidth = displaymetrics.widthPixels;
-        int testSymbolvalue = 13;
-        int testTemp = 10;
-        double testwind = 5;
-        double testrain = 0.5;
-        Weather weather = new Weather(testSymbolvalue,testTemp,testrain,testwind);
-        WeatherAnimation.setAnimationInterval(this,weather);
+//        int testSymbolvalue = 13;
+//        int testTemp = 10;
+//        double testwind = 5;
+//        double testrain = 0.5;
+//        Weather weather = new Weather(testSymbolvalue,testTemp,testrain,testwind);
+        WeatherAnimation.setAnimationInterval(this,mCurrentWeather);
     }
 
     private void startDemo(){
+        stopAnimation();
+        int position = demoCounter%9;
+        updateLayout(getFakeWeather(position));
     }
 
+    public Weather getFakeWeather(int position){
+        Weather fakeWeather;
+        switch (position){
+            case 1:
+                fakeWeather= new Weather(WeatherSymbol.WeatherStatus.ClearSky,3.0,0,0); //spring
+                break;
+            case 2:
+                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Lightsleet, 1.0,0.75,5); //spring rain and snow
+                break;
+            case 3:
+                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.ClearSky, 25.0,0.0,0.0); //summer
+                break;
+            case 4:
+                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Thunder,20.0,0.7,0.0); //summer Thunder and rain
+                break;
+            case 5:
+                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.ClearSky, 14.0, 0,0); // autumn
+                break;
+            case 6:
+                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Rain,10.0, 0.75, 0); //autumn rain
+                break;
+            case 7:
+                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Snowshowers, -9, 0.75, 8); //winter
+                break;
+            case 8:
+                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Cloudysky, -20,0,0); // winter no snow but cold
+                break;
+            default:
+                fakeWeather = mCurrentWeather;
+                break;
+        }
+        return fakeWeather;
+    }
+
+    public void stopAnimation(){
+        if(mHandler != null){
+            if(rainRunnable != null){
+                mHandler.removeCallbacks(rainRunnable);
+//                basecontainer.removeAllViews();
+            }
+            if(snowRunnable != null){
+                mHandler.removeCallbacks(snowRunnable);
+//                basecontainer.removeAllViews();
+            }
+            if(thunderRunnable != null){
+                mHandler.removeCallbacks(thunderRunnable);
+//                basecontainer.removeAllViews();
+            }
+        }
+    }
 }
