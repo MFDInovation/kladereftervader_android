@@ -36,11 +36,13 @@ public class ClothesListActivity extends AppCompatActivity implements View.OnCli
     private MyListViewAdapter mListÁdapter;
     private ArrayList<String> UriList;
     private TextView returnButton;
+    private String tempKey;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_clothes_list);
 
+        tempKey = getIntent().getStringExtra("tempKey");
         myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
@@ -50,7 +52,7 @@ public class ClothesListActivity extends AppCompatActivity implements View.OnCli
         returnButton = (TextView)findViewById(R.id.return_button);
         returnButton.setOnClickListener(this);
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        Set<String> oldDataSet  = preferences.getStringSet("UriSet",null);
+        Set<String> oldDataSet  = preferences.getStringSet(tempKey,null);
         if(oldDataSet != null){
             UriList = new ArrayList<String>(oldDataSet);
             adapterList = changeStringListToUri(UriList);
@@ -149,7 +151,7 @@ public class ClothesListActivity extends AppCompatActivity implements View.OnCli
         Set<String> myset = new HashSet<String>(newList);
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = preferences.edit();
-        editor.putStringSet("UriSet",myset);
+        editor.putStringSet(tempKey,myset);
         editor.apply();
     }
 

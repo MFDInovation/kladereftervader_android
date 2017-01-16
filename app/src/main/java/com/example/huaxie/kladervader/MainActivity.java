@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     private ArrayList<Uri> mViewPagerList;
     private ViewPager mViewPager;
     private int tempContainerHeight;
+    private String tempKey;
     public final static String ExtraMessage = "height";
 
     private WeatherAnimation mWeatherAnimation = null;
@@ -74,14 +75,14 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
         progressBar.setVisibility(View.VISIBLE);
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        Set<String> oldDataSet  = preferences.getStringSet("UriSet",null);
-        if(oldDataSet != null){
-            mUriList = new ArrayList<String>(oldDataSet);
-            updateViewPager();
-        }else {
-            mUriList = new ArrayList<String>();
-        }
+//        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+//        Set<String> oldDataSet  = preferences.getStringSet("UriSet",null);
+//        if(oldDataSet != null){
+//            mUriList = new ArrayList<String>(oldDataSet);
+//            updateViewPager();
+//        }else {
+//            mUriList = new ArrayList<String>();
+//        }
 
         mgps = new GPS(this,hasLocationListener);
         egnaBilderButton.setOnClickListener(this);
@@ -116,6 +117,15 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                         if(mCurrentWeather == null){
                             Toast.makeText(MainActivity.this,"Did not get the weather info,try again", Toast.LENGTH_LONG).show();
                         }else {
+                            tempKey = Integer.toString((int)Math.round(mCurrentWeather.temperature));
+                            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+                            Set<String> oldDataSet  = preferences.getStringSet(tempKey,null);
+                            if(oldDataSet != null){
+                                mUriList = new ArrayList<String>(oldDataSet);
+                                updateViewPager();
+                            }else {
+                                mUriList = new ArrayList<String>();
+                            }
                             updateLayout(mCurrentWeather);
                             progressBar.setVisibility(View.GONE);
                         }
@@ -208,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 switch (resultCode) {
                     case AppCompatActivity.RESULT_OK:
                         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-                        Set<String> oldDataSet  = preferences.getStringSet("UriSet",null);
+                        Set<String> oldDataSet  = preferences.getStringSet(tempKey,null);
                         if(oldDataSet != null){
                             mUriList = new ArrayList<String>(oldDataSet);
                             updateViewPager();
@@ -250,6 +260,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         switch (view.getId()){
             case R.id.egna_bilder_button :
                 Intent intent = new Intent(this, ClothesListActivity.class);
+                intent.putExtra("tempKey",tempKey);
                 startActivityForResult(intent,ACTIVITY_RESULT_CODE);
                 break;
             case R.id.demo_button:
