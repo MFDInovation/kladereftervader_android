@@ -7,10 +7,14 @@ package com.example.huaxie.kladervader;
 public class WeatherSymbol {
     private int mSymbolValue;
     private int mSymbolPriority;
+    private WeatherStatus mStatus;
 
     public WeatherSymbol(int symbolValue){
         this.mSymbolValue = symbolValue;
         this.mSymbolPriority = getPriority(getWeatherStatus(symbolValue));
+    }
+    public WeatherSymbol(WeatherStatus status){
+        this.mStatus = status;
     }
 
     public enum WeatherStatus{

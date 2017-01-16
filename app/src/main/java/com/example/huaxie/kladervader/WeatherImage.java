@@ -41,7 +41,7 @@ public class WeatherImage {
         return currentWeather;
     }
 
-    public int getWeatherSymbolImage(WeatherSymbol.WeatherStatus status, String season) {
+    public static int getWeatherSymbolImage(WeatherSymbol.WeatherStatus status, String season) {
         if (season.equals("spring")) {
             switch (status) {
                 case ClearSky:

@@ -98,7 +98,7 @@ public class JsonParser {
         weather.rainfall = maxRainfall;
         weather.windSpeed = maxWindSpeed;
         weather.symbol = worstSymbol;
-        weather.weatherSymbol = new WeatherSymbol(worstSymbol);
+        weather.weatherSymbol = new WeatherSymbol(worstSymbol).getWeatherStatus(worstSymbol);
         return weather;
     }
 

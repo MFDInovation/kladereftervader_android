@@ -18,6 +18,7 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.RelativeLayout;
@@ -41,30 +42,28 @@ public class WeatherAnimation {
 
     final static String TAG = "Animation";
 
-    public static void snowAnimation(Weather weather, AppCompatActivity activity,
+    public static void snowAnimation(int windSpeed, AppCompatActivity activity,
                                      PercentRelativeLayout fatherContainer, int height, int width){
-        int windSpeed = (int)Math.round(Math.min(weather.windSpeed/3,2));
         int snowDuration = 6000;
-        ImageView animationItem = createRandomImage(weather,activity,fatherContainer,height,width,R.mipmap.snow);
+        ImageView animationItem = createRandomImage(activity,fatherContainer,height,width,R.mipmap.snow);
         doWeatherAnimation(activity, animationItem, fatherContainer,windSpeed,snowDuration);
     }
 
-    public static void rainAnimation(Weather weather, AppCompatActivity activity,
+    public static void rainAnimation(int windSpeed, AppCompatActivity activity,
                                      PercentRelativeLayout fatherContainer, int height, int width){
-        int windSpeed = (int)Math.round(Math.min(weather.windSpeed/3,2));
         int rainDuration = 400;
-        ImageView animationItem = createRandomImage(weather,activity,fatherContainer,height,width,R.mipmap.rain);
+        ImageView animationItem = createRandomImage(activity,fatherContainer,height,width,R.mipmap.rain);
         doWeatherAnimation(activity,animationItem,fatherContainer,windSpeed,rainDuration);
     }
 
-    public static void thunderAnimation(Weather weather, AppCompatActivity activity,
+    public static void thunderAnimation(AppCompatActivity activity,
                                      PercentRelativeLayout fatherContainer, int height, int width){
-        ImageView animationItem = createRandomImage(weather,activity,fatherContainer,height,width,R.mipmap.lightning);
-        doThunderAnimation(weather,animationItem,activity,fatherContainer);
+        ImageView animationItem = createRandomImage(activity,fatherContainer,height,width,R.mipmap.lightning);
+        doThunderAnimation(animationItem,activity,fatherContainer);
     }
 
 
-    public static ImageView createRandomImage(Weather weather, AppCompatActivity activity,
+    public static ImageView createRandomImage(AppCompatActivity activity,
                                   PercentRelativeLayout fatherContainer, int height, int width, int resId){
         int randomStartpoint = (int)Math.round(Math.random()*width);
         ImageView animationItem= new ImageView(activity);
@@ -76,7 +75,7 @@ public class WeatherAnimation {
         return animationItem;
     }
 
-    private static void doThunderAnimation(Weather weather,ImageView animationItem,AppCompatActivity activity,
+    private static void doThunderAnimation(ImageView animationItem,AppCompatActivity activity,
                                            PercentRelativeLayout fatherContainer){
         AnimationSet set = new AnimationSet(true);
         addThunderAnimatior(0.01f,1.0f,animationItem,set,100,fatherContainer,activity);
@@ -137,44 +136,14 @@ public class WeatherAnimation {
             }
         });
         animationItem.startAnimation(newAnimation);
-       /* ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(animationItem, "translationY",
-                0,height);
-        objectAnimator.setDuration(value.duration);
-        objectAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-        objectAnimator.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animator) {}
-
-            @Override
-            public void onAnimationEnd(Animator animator) {
-                fatherContainer.post(new Runnable() {
-                    public void run () {
-                        // it works without the runOnUiThread, but all UI updates must
-                        // be done on the UI thread
-                        activity.runOnUiThread(new Runnable() {
-                            public void run() {
-                                fatherContainer.removeView(animationItem);
-                            }
-                        });
-                    }
-                });
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animator) {}
-
-            @Override
-            public void onAnimationRepeat(Animator animator) {
-
-            }
-        });
-        objectAnimator.start();*/
     }
 
     public static void setAnimationInterval(MainActivity activity, Weather weather){
-
         int interval = 0;
         int intensity = 0;
+        int windSpeed = 0;
+        Bundle rainbundle = new Bundle();
+        Bundle snowbundle = new Bundle();
         double rainfall = Math.max(weather.rainfall,0.7) ;
         if(rainfall < 0.1)
         {
@@ -188,27 +157,59 @@ public class WeatherAnimation {
             case Snowshowers:
                 intensity = (int)(Math.round(Math.min(rainfall*20, 200.0)));
                 interval = Math.round(6000/intensity);
-                new Timer().schedule(new AnimTimerTask(activity.getHandler(),"snow"), 0, interval);
+                windSpeed = (int)Math.round(Math.min(weather.windSpeed/3,2));
+                snowbundle.putString("status","snow");
+                snowbundle.putInt("interval",interval);
+                snowbundle.putInt("windspeed", windSpeed);
+                Message snowmsg = new Message();
+                snowmsg.setData(snowbundle);
+                activity.getHandler().sendMessage(snowmsg);
                 break;
             case Rain:
             case Rainshowers:
                 intensity = (int)(Math.round(Math.min(rainfall*10, 100.0)));
                 interval = Math.round(400/intensity);
-                new Timer().schedule(new AnimTimerTask(activity.getHandler(),"rain"), 0, interval);
+                windSpeed = (int)Math.round(Math.min(weather.windSpeed/3,2));
+                rainbundle.putString("status","rain");
+                rainbundle.putInt("interval",interval);
+                rainbundle.putInt("windspeed", windSpeed);
+                Message rainmsg = new Message();
+                rainmsg.setData(rainbundle);
+                activity.getHandler().sendMessage(rainmsg);
                 break;
             case Sleet:
             case Lightsleet:
                 intensity = (int)(Math.round(Math.min(rainfall*5, 50.0)));
                 interval = Math.round(6000/intensity);
-                new Timer().schedule(new AnimTimerTask(activity.getHandler(),"snow"), 0, interval);
+                windSpeed = (int)Math.round(Math.min(weather.windSpeed/3,2));
+                snowbundle.putString("status","snow");
+                snowbundle.putInt("interval",interval);
+                snowbundle.putInt("windspeed", windSpeed);
+                Message msg1 = new Message();
+                msg1.setData(snowbundle);
+                activity.getHandler().sendMessage(msg1);
+
                 intensity = (int)(Math.round(Math.min(rainfall*10, 100.0)));
                 interval = Math.round(400/intensity);
-                new Timer().schedule(new AnimTimerTask(activity.getHandler(),"rain"), 0, interval);
+                windSpeed = (int)Math.round(Math.min(weather.windSpeed/3,2));
+                rainbundle.putString("status","rain");
+                rainbundle.putInt("interval",interval);
+                rainbundle.putInt("windspeed", windSpeed);
+                Message msg2 = new Message();
+                msg2.setData(rainbundle);
+                activity.getHandler().sendMessage(msg2);
                 break;
             case Thunder:
             case Thunderstorm:
                 interval = (int)(Math.round(Math.random()*2000 + 5000));
-                new Timer().schedule(new AnimTimerTask(activity.getHandler(),"thunder"), 0, interval);
+                windSpeed = 0;
+                Bundle thunderBundle = new Bundle();
+                thunderBundle.putString("status","thunder");
+                thunderBundle.putInt("interval",interval);
+                thunderBundle.putInt("windspeed", windSpeed);
+                Message thunderMsg = new Message();
+                thunderMsg.setData(thunderBundle);
+                activity.getHandler().sendMessage(thunderMsg);
                 break;
             default:
                 break;
@@ -230,6 +231,84 @@ public class WeatherAnimation {
         private AnimTimerTask(Handler mHandler, String status){
             this.mHandler = mHandler;
             this.status = status;
+        }
+    }
+
+    public static void setAnimationIntervalDemo(DemoActivity activity, Weather weather){
+        int interval = 0;
+        int intensity = 0;
+        int windSpeed = 0;
+        Bundle rainbundle = new Bundle();
+        Bundle snowbundle = new Bundle();
+        double rainfall = Math.max(weather.rainfall,0.7) ;
+        if(rainfall < 0.1)
+        {
+            return;
+        }
+        WeatherSymbol.WeatherStatus status = weather.getWeatherStatus();
+        final int snowDuration = 6000;
+        final int rainDuration = 400;
+        switch (status){
+            case Snowfall:
+            case Snowshowers:
+                intensity = (int)(Math.round(Math.min(rainfall*20, 200.0)));
+                interval = Math.round(6000/intensity);
+                windSpeed = (int)Math.round(Math.min(weather.windSpeed/3,2));
+                snowbundle.putString("status","snow");
+                snowbundle.putInt("interval",interval);
+                snowbundle.putInt("windspeed", windSpeed);
+                Message snowmsg = new Message();
+                snowmsg.setData(snowbundle);
+                activity.getHandler().sendMessage(snowmsg);
+
+                break;
+            case Rain:
+            case Rainshowers:
+                intensity = (int)(Math.round(Math.min(rainfall*10, 100.0)));
+                interval = Math.round(400/intensity);
+                windSpeed = (int)Math.round(Math.min(weather.windSpeed/3,2));
+                rainbundle.putString("status","rain");
+                rainbundle.putInt("interval",interval);
+                rainbundle.putInt("windspeed", windSpeed);
+                Message rainmsg = new Message();
+                rainmsg.setData(rainbundle);
+                activity.getHandler().sendMessage(rainmsg);
+                break;
+            case Sleet:
+            case Lightsleet:
+                intensity = (int)(Math.round(Math.min(rainfall*5, 50.0)));
+                interval = Math.round(6000/intensity);
+                windSpeed = (int)Math.round(Math.min(weather.windSpeed/3,2));
+                snowbundle.putString("status","snow");
+                snowbundle.putInt("interval",interval);
+                snowbundle.putInt("windspeed", windSpeed);
+                Message msg1 = new Message();
+                msg1.setData(snowbundle);
+                activity.getHandler().sendMessage(msg1);
+                intensity = (int)(Math.round(Math.min(rainfall*10, 100.0)));
+                interval = Math.round(400/intensity);
+                windSpeed = (int)Math.round(Math.min(weather.windSpeed/3,2));
+                rainbundle.putString("status","rain");
+                rainbundle.putInt("interval",interval);
+                rainbundle.putInt("windspeed", windSpeed);
+                Message msg2 = new Message();
+                msg2.setData(rainbundle);
+                activity.getHandler().sendMessage(msg2);
+                break;
+            case Thunder:
+            case Thunderstorm:
+                interval = (int)(Math.round(Math.random()*2000 + 5000));
+                windSpeed = 0;
+                Bundle thunderBundle = new Bundle();
+                thunderBundle.putString("status","thunder");
+                thunderBundle.putInt("interval",interval);
+                thunderBundle.putInt("windspeed", windSpeed);
+                Message thunderMsg = new Message();
+                thunderMsg.setData(thunderBundle);
+                activity.getHandler().sendMessage(thunderMsg);
+                break;
+            default:
+                break;
         }
     }
 

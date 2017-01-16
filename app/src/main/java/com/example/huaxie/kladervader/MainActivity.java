@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.LinearInterpolator;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -56,6 +57,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     private ArrayList<String> mUriList;
     private ArrayList<Uri> mViewPagerList;
     private ViewPager mViewPager;
+    private int tempContainerHeight;
+    public final static String ExtraMessage = "height";
 
     private WeatherAnimation mWeatherAnimation = null;
 
@@ -78,8 +81,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         portrait = (ImageView)findViewById(R.id.portrait_container);
         egnaBilderButton = (TextView)findViewById(R.id.egna_bilder_button);
         mViewPager = (ViewPager) findViewById(R.id.myViewPager);
-
-
+        Button mDemoButton = (Button) findViewById(R.id.demo_button);
+        mDemoButton.setOnClickListener(this);
 
         progressBar.setVisibility(View.VISIBLE);
 
@@ -153,8 +156,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 baseBackground.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 int imageHeight = baseBackground.getHeight();
                 Log.d(TAG, "update: imageHeight" + imageHeight);
-                int height = (int)Math.round(imageHeight*0.22);
-                PercentRelativeLayout.LayoutParams params = new PercentRelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height);
+                tempContainerHeight = (int)Math.round(imageHeight*0.22);
+                PercentRelativeLayout.LayoutParams params = new PercentRelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, tempContainerHeight);
                 tempContainer.setLayoutParams(params);
                 baseBackground.setVisibility(View.VISIBLE);
             }
@@ -260,6 +263,15 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             case R.id.egna_bilder_button :
                 Intent intent = new Intent(this, ClothesListActivity.class);
                 startActivityForResult(intent,ACTIVITY_RESULT_CODE);
+                break;
+            case R.id.demo_button:
+                Log.d(TAG, "onClick: demobutton");
+                Intent demoIntent = new Intent(this, DemoActivity.class);
+                demoIntent.putExtra(ExtraMessage,tempContainerHeight);
+                startActivity(demoIntent);
+                break;
+            default:
+                Log.d(TAG, "onClick: "+ view.toString()+ "is clicked");
         }
     }
 
@@ -332,19 +344,39 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            int testSymbolvalue = 14;
-            int testTemp = -10;
-            double testwind = 2.9;
-            double testrain = 0.1;
-            Weather weather = new Weather(testSymbolvalue,testTemp,testrain,testwind);
             Bundle bundle = msg.getData();
             String status = bundle.getString("status");
+            final int interval = bundle.getInt("interval");
+            final int windspeed = bundle.getInt("windspeed");
             if(status.equals("snow")){
-                WeatherAnimation.snowAnimation(weather,MainActivity.this,baseContainer,mWindowHeight,mWindowWidth);
+                Log.d(TAG, "handleMessage: snow");
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        WeatherAnimation.snowAnimation(windspeed,MainActivity.this,baseContainer,mWindowHeight,mWindowWidth);
+                        mHandler.postDelayed(this, interval);
+                    }
+                });
+
             }else if (status.equals("rain")){
-                WeatherAnimation.rainAnimation(weather,MainActivity.this,baseContainer,mWindowHeight,mWindowWidth);
+                Log.d(TAG, "handleMessage: rain");
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        WeatherAnimation.rainAnimation(windspeed,MainActivity.this,baseContainer,mWindowHeight,mWindowWidth);
+                        mHandler.postDelayed(this, interval);
+                    }
+                });
+
             }else if (status.equals("thunder")){
-                WeatherAnimation.thunderAnimation(weather,MainActivity.this,baseContainer,mWindowHeight,mWindowWidth);
+                Log.d(TAG, "handleMessage: thunder");
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        WeatherAnimation.thunderAnimation(MainActivity.this,baseContainer,mWindowHeight,mWindowWidth);
+                        mHandler.postDelayed(this, interval);
+                    }
+                });
             }
         }
 
@@ -354,13 +386,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         return mHandler;
     }
 
-    /*public class AnimTimerTask extends TimerTask {
-        @Override
-        public void run() {
-            mHandler.sendEmptyMessage(0x11);
-        }
-    }*/
-
     private int mWindowHeight;
     private int mWindowWidth;
     private void startAnimation(Weather mCurrentWeather){
@@ -368,12 +393,12 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
         mWindowHeight = displaymetrics.heightPixels;
         mWindowWidth = displaymetrics.widthPixels;
-        int testSymbolvalue = 14;
-        int testTemp = -10;
-        double testwind = 2.9;
-        double testrain = 0.1;
-        Weather weather = new Weather(testSymbolvalue,testTemp,testrain,testwind);
-        WeatherAnimation.setAnimationInterval(this,weather);
+//        int testSymbolvalue = 14;
+//        int testTemp = -10;
+//        double testwind = 2.9;
+//        double testrain = 0.1;
+//        Weather weather = new Weather(testSymbolvalue,testTemp,testrain,testwind);
+        WeatherAnimation.setAnimationInterval(this,mCurrentWeather);
     }
 
 }

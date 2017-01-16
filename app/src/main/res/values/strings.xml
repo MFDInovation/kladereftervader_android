@@ -14,7 +14,8 @@
 
     <string name="title">Title</string>
     <string name="delete">Ta bort</string>
-
+    <string name="egna_bilder">Egna Bilder</string>
+    <string name="demo">Demo</string>
 
 
 </resources>

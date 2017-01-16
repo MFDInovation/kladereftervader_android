@@ -11,15 +11,11 @@ public class Weather {
     public double temperature;
     public double rainfall;
     public double windSpeed;
-    public WeatherSymbol weatherSymbol;
+    public WeatherSymbol.WeatherStatus weatherSymbol;
 
 
 
     public Weather(){ new Weather(0,0,0,0);};
-
-//    public Weather(String test){
-//        new Weather(testSymbolvalue,testTemp,testrain,testwind);
-//    }
 
     public Weather(int symbol, double temperature, double rainfall, double windSpeed){
         this.symbol = symbol;
@@ -27,10 +23,17 @@ public class Weather {
         this.rainfall = rainfall;
         this.windSpeed = windSpeed;
         if(symbol != 0){
-            this.weatherSymbol = new WeatherSymbol(symbol);
+            this.weatherSymbol = new WeatherSymbol(symbol).getWeatherStatus(symbol);
         }else {
             weatherSymbol = null;
         }
+    }
+
+    public Weather(WeatherSymbol.WeatherStatus weatherSymbol, double temperature, double rainfall, double windSpeed){
+        this.temperature = temperature;
+        this.rainfall = rainfall;
+        this.windSpeed = windSpeed;
+        this.weatherSymbol = weatherSymbol;
     }
 
     @Override
@@ -54,9 +57,7 @@ public class Weather {
         return windSpeed;
     }
 
-    public WeatherSymbol getWeatherSymbol() {return weatherSymbol;}
-
     public WeatherSymbol.WeatherStatus getWeatherStatus(){
-        return weatherSymbol.getWeatherStatus(symbol);
+        return weatherSymbol;
     }
 }
