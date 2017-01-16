@@ -1,44 +1,32 @@
 package com.example.huaxie.kladervader;
 
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.print.PrintAttributes;
 import android.support.percent.PercentRelativeLayout;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.animation.LinearInterpolator;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 
 
 
@@ -81,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         portrait = (ImageView)findViewById(R.id.portrait_container);
         egnaBilderButton = (TextView)findViewById(R.id.egna_bilder_button);
         mViewPager = (ViewPager) findViewById(R.id.myViewPager);
-        Button mDemoButton = (Button) findViewById(R.id.demo_button);
+        TextView mDemoButton = (TextView) findViewById(R.id.demo_button);
         mDemoButton.setOnClickListener(this);
 
         progressBar.setVisibility(View.VISIBLE);

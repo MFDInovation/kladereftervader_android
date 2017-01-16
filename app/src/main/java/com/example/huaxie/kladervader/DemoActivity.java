@@ -1,5 +1,6 @@
 package com.example.huaxie.kladervader;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -7,6 +8,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.support.percent.PercentRelativeLayout;
+import android.support.v4.util.LruCache;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -21,6 +23,7 @@ import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 
+
 public class DemoActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener{
     private static int tempContainerHeight;
     private final int dedaultHeight = 150;
@@ -32,12 +35,14 @@ public class DemoActivity extends AppCompatActivity implements ViewPager.OnPageC
     private Runnable thunderRunnable = null;
     private Runnable rainRunnable = null;
     private Runnable snowRunnable = null;
+
+    private LruCache<String, Bitmap> mMemoryCache;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_demo);
         tempContainerHeight = getIntent().getIntExtra(MainActivity.ExtraMessage,dedaultHeight);
-        MyPagerAdapter adapterViewPager = new MyPagerAdapter(getFakeWeather(),this);
+        MyPagerAdapter adapterViewPager = new MyPagerAdapter(getFakeWeather(),this,this);
         ViewPager mViewPager = (ViewPager)findViewById(R.id.myViewPager);
         mViewPager.setAdapter(adapterViewPager);
         mViewPager.setOnPageChangeListener(this);
@@ -48,7 +53,43 @@ public class DemoActivity extends AppCompatActivity implements ViewPager.OnPageC
         getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
         mWindowHeight = displaymetrics.heightPixels;
         mWindowWidth = displaymetrics.widthPixels;
+
+        final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+
+        // Use 1/8th of the available memory for this memory cache.
+        final int cacheSize = maxMemory / 8;
+
+        mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
+            @Override
+            protected int sizeOf(String key, Bitmap bitmap) {
+                // The cache size will be measured in kilobytes rather than
+                // number of items.
+                return bitmap.getByteCount() / 1024;
+            }
+        };
     }
+
+    public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
+        if (getBitmapFromMemCache(key) == null) {
+            mMemoryCache.put(key, bitmap);
+        }
+    }
+
+    public Bitmap getBitmapFromMemCache(String key) {
+        return mMemoryCache.get(key);
+    }
+
+    /*public void loadBitmap(int resId, ImageView imageView) {
+        final String imageKey = String.valueOf(resId);
+
+        final Bitmap bitmap = getBitmapFromMemCache(imageKey);
+        if (bitmap != null) {
+            imageView.setImageBitmap(bitmap);
+        } else {
+            BitmapWorkerTaskDemo task = new BitmapWorkerTaskDemo(imageView,mContext);
+            task.execute(resId);
+        }
+    }*/
 
     public ArrayList<Weather> getFakeWeather(){
         fakeList = new ArrayList<>();
@@ -108,11 +149,13 @@ public class DemoActivity extends AppCompatActivity implements ViewPager.OnPageC
         private ArrayList<Weather>  weatherList;
         private LayoutInflater mInflater;
         private Context mContext;
+        private DemoActivity activity;
 
-        public MyPagerAdapter(ArrayList<Weather>  weatherList, Context context){
+        public MyPagerAdapter(ArrayList<Weather>  weatherList, Context context, DemoActivity activity){
             this.weatherList = weatherList;
             this.mContext = context;
             this.mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            this.activity = activity;
         }
 
         @Override
@@ -143,7 +186,17 @@ public class DemoActivity extends AppCompatActivity implements ViewPager.OnPageC
             RelativeLayout tempContainer = (RelativeLayout)itemView.findViewById(R.id.temp_container);
             PercentRelativeLayout.LayoutParams params = new PercentRelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, tempContainerHeight);
             tempContainer.setLayoutParams(params);
-            background.setImageResource(resId);
+
+            final String backgroundKey = String.valueOf(resId);
+
+            final Bitmap backgroundImage = activity.getBitmapFromMemCache(backgroundKey);
+            if (backgroundImage != null) {
+                background.setImageBitmap(backgroundImage);
+            } else {
+                BitmapWorkerTaskDemo task = new BitmapWorkerTaskDemo(background,mContext,activity,true);
+                task.execute(resId);
+            }
+//            background.setImageResource(resId);
 
 
             Clothing clothing = new Clothing();
@@ -153,8 +206,19 @@ public class DemoActivity extends AppCompatActivity implements ViewPager.OnPageC
 //            String imagePath = BitmapWorkerTask.getPathFromImageUri(imageUri,mContext);
 //            BitmapWorkerTask ImageLoader = new BitmapWorkerTask(portrait);
 //            ImageLoader.execute(imagePath);
-            BitmapWorkerTaskDemo ImageLoader = new BitmapWorkerTaskDemo(portrait,mContext);
-            ImageLoader.execute(portraitId);
+//            BitmapWorkerTaskDemo ImageLoader = new BitmapWorkerTaskDemo(portrait,mContext);
+//            ImageLoader.execute(portraitId);
+
+            final String imageKey = String.valueOf(portraitId);
+
+            final Bitmap bitmap = activity.getBitmapFromMemCache(imageKey);
+            if (bitmap != null) {
+                portrait.setImageBitmap(bitmap);
+            } else {
+                BitmapWorkerTaskDemo task = new BitmapWorkerTaskDemo(portrait,mContext,activity,false);
+                task.execute(portraitId);
+            }
+
             container.addView(itemView);
             return itemView;
         }
