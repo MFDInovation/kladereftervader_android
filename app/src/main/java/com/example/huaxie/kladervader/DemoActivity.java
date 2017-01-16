@@ -1,6 +1,8 @@
 package com.example.huaxie.kladervader;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
@@ -20,7 +22,7 @@ import android.widget.RelativeLayout;
 import java.util.ArrayList;
 
 public class DemoActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener{
-    private int tempContainerHeight;
+    private static int tempContainerHeight;
     private final int dedaultHeight = 150;
     private ArrayList<Weather> fakeList;
     private int mWindowHeight;
@@ -42,10 +44,6 @@ public class DemoActivity extends AppCompatActivity implements ViewPager.OnPageC
 
         basecontainer = (PercentRelativeLayout)findViewById(R.id.base_container);
 
-        /*RelativeLayout tempContainer = (RelativeLayout)findViewById(R.id.temp_container);
-        PercentRelativeLayout.LayoutParams params = new PercentRelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, tempContainerHeight);
-        tempContainer.setLayoutParams(params);*/
-
         DisplayMetrics displaymetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
         mWindowHeight = displaymetrics.heightPixels;
@@ -57,9 +55,9 @@ public class DemoActivity extends AppCompatActivity implements ViewPager.OnPageC
         Weather fakeWeather;
         fakeWeather= new Weather(WeatherSymbol.WeatherStatus.ClearSky,10.0,0.1,0.1); //spring
         fakeList.add(fakeWeather);
-        fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Snowshowers, 1.0,0.75,3); //spring rain and snow
+        fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Lightsleet, 1.0,0.75,3); //spring rain and snow
         fakeList.add(fakeWeather);
-        fakeWeather = new Weather(WeatherSymbol.WeatherStatus.ClearSky, 20.0,0.1,0.0); //summer
+        fakeWeather = new Weather(WeatherSymbol.WeatherStatus.ClearSky, 20.0,0.0,0.0); //summer
         fakeList.add(fakeWeather);
         fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Thunder,25.0,0.7,0.0); //summer Thunder and rain
         fakeList.add(fakeWeather);
@@ -83,12 +81,15 @@ public class DemoActivity extends AppCompatActivity implements ViewPager.OnPageC
             if(mHandler != null){
                 if(rainRunnable != null){
                     mHandler.removeCallbacks(rainRunnable);
+                    basecontainer.removeAllViews();
                 }
                 if(snowRunnable != null){
                     mHandler.removeCallbacks(snowRunnable);
+                    basecontainer.removeAllViews();
                 }
                 if(thunderRunnable != null){
                     mHandler.removeCallbacks(thunderRunnable);
+                    basecontainer.removeAllViews();
                 }
             }
         }
@@ -139,7 +140,21 @@ public class DemoActivity extends AppCompatActivity implements ViewPager.OnPageC
             }else {
                 resId = WeatherImage.getWeatherSymbolImage(currentWeather.getWeatherStatus(),WeatherImage.winter);
             }
+            RelativeLayout tempContainer = (RelativeLayout)itemView.findViewById(R.id.temp_container);
+            PercentRelativeLayout.LayoutParams params = new PercentRelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, tempContainerHeight);
+            tempContainer.setLayoutParams(params);
             background.setImageResource(resId);
+
+
+            Clothing clothing = new Clothing();
+            int portraitId = clothing.getClosingImage(currentWeather);
+            ImageView portrait = (ImageView) itemView.findViewById(R.id.portrait_container);
+//            Uri imageUri = Uri.parse("android.resource://mipmap/" + portraitId);
+//            String imagePath = BitmapWorkerTask.getPathFromImageUri(imageUri,mContext);
+//            BitmapWorkerTask ImageLoader = new BitmapWorkerTask(portrait);
+//            ImageLoader.execute(imagePath);
+            BitmapWorkerTaskDemo ImageLoader = new BitmapWorkerTaskDemo(portrait,mContext);
+            ImageLoader.execute(portraitId);
             container.addView(itemView);
             return itemView;
         }

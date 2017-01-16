@@ -297,7 +297,7 @@ public class WeatherAnimation {
                 break;
             case Thunder:
             case Thunderstorm:
-                interval = (int)(Math.round(Math.random()*2000 + 5000));
+                interval = (int)(Math.round(Math.random()*2000 + 3000));
                 windSpeed = 0;
                 Bundle thunderBundle = new Bundle();
                 thunderBundle.putString("status","thunder");

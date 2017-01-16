@@ -92,5 +92,6 @@ public class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
         cursor.close();
         return picturePath;
     }
+
 }
 
