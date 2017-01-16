@@ -129,7 +129,6 @@ public class ClothesListActivity extends AppCompatActivity implements View.OnCli
                 break;
             case R.id.return_button:
                 Intent intent = new Intent();
-                intent.putExtra("UriList",UriList);
                 setResult(RESULT_OK,intent);
                 mListÁdapter.clear();
                 finish();

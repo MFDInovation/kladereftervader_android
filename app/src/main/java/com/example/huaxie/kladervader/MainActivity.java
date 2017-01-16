@@ -254,10 +254,10 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 break;
             case R.id.demo_button:
                 Log.d(TAG, "onClick: demobutton");
-                Intent demoIntent = new Intent(this, DemoActivity.class);
+                /*Intent demoIntent = new Intent(this, DemoActivity.class);
                 demoIntent.putExtra(ExtraMessage,tempContainerHeight);
                 startActivity(demoIntent);
-                break;
+                break;*/
             default:
                 Log.d(TAG, "onClick: "+ view.toString()+ "is clicked");
         }
@@ -381,12 +381,15 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
         mWindowHeight = displaymetrics.heightPixels;
         mWindowWidth = displaymetrics.widthPixels;
-//        int testSymbolvalue = 14;
-//        int testTemp = -10;
-//        double testwind = 2.9;
-//        double testrain = 0.1;
-//        Weather weather = new Weather(testSymbolvalue,testTemp,testrain,testwind);
-        WeatherAnimation.setAnimationInterval(this,mCurrentWeather);
+        int testSymbolvalue = 13;
+        int testTemp = 10;
+        double testwind = 5;
+        double testrain = 0.5;
+        Weather weather = new Weather(testSymbolvalue,testTemp,testrain,testwind);
+        WeatherAnimation.setAnimationInterval(this,weather);
+    }
+
+    private void startDemo(){
     }
 
 }
