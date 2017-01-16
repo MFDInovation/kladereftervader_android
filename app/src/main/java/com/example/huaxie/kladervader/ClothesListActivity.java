@@ -158,7 +158,8 @@ public class ClothesListActivity extends AppCompatActivity implements View.OnCli
     private void deleteDataListInSharedPreferences(){
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = preferences.edit();
-        editor.clear().apply();
+        editor.remove(tempKey);
+        editor.apply();
     }
 
 

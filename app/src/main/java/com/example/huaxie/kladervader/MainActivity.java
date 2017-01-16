@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     private Runnable snowRunnable = null;
     private int mWindowHeight;
     private int mWindowWidth;
+    private Weather demoWeather;
 
     private WeatherAnimation mWeatherAnimation = null;
 
@@ -185,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             portrait.setImageResource(portraitId);
         }
         //start animation
-        startAnimation( weather);
+        startAnimation(weather);
     }
 
     @Override
@@ -244,6 +245,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                             mUriList = new ArrayList<String>();
                             recoverImageView();
                         }
+                        startAnimation(demoWeather);
                         break;
                 }
         }
@@ -420,7 +422,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     private void startDemo(){
         stopAnimation();
         int position = demoCounter%9;
-        updateLayout(getFakeWeather(position));
+        demoWeather = getFakeWeather(position);
+        updateLayout(demoWeather);
 //        animationContainer.setVisibility(View.VISIBLE);
     }
 
