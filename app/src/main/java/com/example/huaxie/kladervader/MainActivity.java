@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     private TextView mTemp;
     private PercentRelativeLayout baseContainer;
     private ImageView baseBackground;
+    private RelativeLayout animationContainer;
     private RelativeLayout tempContainer;
     private GPS mgps;
     private Weather mCurrentWeather;
@@ -52,6 +53,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     private Runnable thunderRunnable = null;
     private Runnable rainRunnable = null;
     private Runnable snowRunnable = null;
+    private int mWindowHeight;
+    private int mWindowWidth;
 
     private WeatherAnimation mWeatherAnimation = null;
 
@@ -68,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
         //layout update
         baseContainer = (PercentRelativeLayout)findViewById(R.id.base_container);
+        animationContainer = (RelativeLayout)findViewById(R.id.animation_container);
         baseBackground = (ImageView)findViewById(R.id.base_background);
         tempContainer = (RelativeLayout)findViewById(R.id.temp_container);
         progressBar = (ProgressBar)findViewById(R.id.progress_bar);
@@ -121,6 +125,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                         if(mCurrentWeather == null){
                             Toast.makeText(MainActivity.this,"Did not get the weather info,try again", Toast.LENGTH_LONG).show();
                         }else {
+                            updateLayout(mCurrentWeather);
+                            progressBar.setVisibility(View.GONE);
                             tempKey = Integer.toString((int)Math.round(mCurrentWeather.temperature));
                             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
                             Set<String> oldDataSet  = preferences.getStringSet(tempKey,null);
@@ -130,8 +136,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                             }else {
                                 mUriList = new ArrayList<String>();
                             }
-                            updateLayout(mCurrentWeather);
-                            progressBar.setVisibility(View.GONE);
                         }
                     }
                 });
@@ -140,14 +144,14 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         newNetworking.execute();
     }
 
-    private void updateLayout(Weather mCurrentWeather){
-        Log.d(TAG, "updateLayout: mycurrentWeather :" + mCurrentWeather.toString());
+    private void updateLayout(Weather weather){
+        Log.d(TAG, "updateLayout: mycurrentWeather :" +  weather.toString());
         //update temp
-        double temp = mCurrentWeather.getTemperature();
+        double temp =  weather.getTemperature();
         String temperature = (int)Math.round(temp) + "°";
         mTemp.setText(temperature);
         //update background
-        WeatherSymbol.WeatherStatus status = mCurrentWeather.getWeatherStatus();
+        WeatherSymbol.WeatherStatus status =  weather.getWeatherStatus();
         WeatherImage weatherImage = new WeatherImage();
         int id = weatherImage.getWeatherSymbolImage(status,weatherImage.getCurrentSeason());
         Log.d(TAG, "updateLayout: id" + id);
@@ -164,14 +168,24 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 baseBackground.setVisibility(View.VISIBLE);
             }
         });
-        //update portrait
-        Clothing clothing = new Clothing();
-        int portraitId = clothing.getClosingImage(mCurrentWeather);
-        portrait.setImageResource(portraitId);
-        portrait.setVisibility(View.VISIBLE);
 
+        tempKey = Integer.toString((int)Math.round(temp));
+        Log.d(TAG, "updateLayout: tempkey" +tempKey);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+        Set<String> oldDataSet  = preferences.getStringSet(tempKey,null);
+        if(oldDataSet != null){
+            mUriList = new ArrayList<String>(oldDataSet);
+            updateViewPager();
+        }else {
+            mUriList = new ArrayList<String>();
+            //update portrait
+            recoverImageView();
+            Clothing clothing = new Clothing();
+            int portraitId = clothing.getClosingImage( weather);
+            portrait.setImageResource(portraitId);
+        }
         //start animation
-        startAnimation(mCurrentWeather);
+        startAnimation( weather);
     }
 
     @Override
@@ -266,6 +280,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 Intent intent = new Intent(this, ClothesListActivity.class);
                 intent.putExtra("tempKey",tempKey);
                 startActivityForResult(intent,ACTIVITY_RESULT_CODE);
+                stopAnimation();
                 break;
             case R.id.demo_button:
                 Log.d(TAG, "onClick: demobutton");
@@ -355,7 +370,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 mHandler.post(snowRunnable = new Runnable() {
                     @Override
                     public void run() {
-                        WeatherAnimation.snowAnimation(windspeed,MainActivity.this,baseContainer,mWindowHeight,mWindowWidth);
+                        WeatherAnimation.snowAnimation(windspeed,MainActivity.this,animationContainer,mWindowHeight,mWindowWidth);
                         mHandler.postDelayed(this, interval);
                     }
                 });
@@ -365,7 +380,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 mHandler.post(rainRunnable = new Runnable() {
                     @Override
                     public void run() {
-                        WeatherAnimation.rainAnimation(windspeed,MainActivity.this,baseContainer,mWindowHeight,mWindowWidth);
+                        WeatherAnimation.rainAnimation(windspeed,MainActivity.this,animationContainer,mWindowHeight,mWindowWidth);
                         mHandler.postDelayed(this, interval);
                     }
                 });
@@ -375,7 +390,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 mHandler.post(thunderRunnable = new Runnable() {
                     @Override
                     public void run() {
-                        WeatherAnimation.thunderAnimation(MainActivity.this,baseContainer,mWindowHeight,mWindowWidth);
+                        WeatherAnimation.thunderAnimation(MainActivity.this,animationContainer,mWindowHeight,mWindowWidth);
                         mHandler.postDelayed(this, interval);
                     }
                 });
@@ -388,8 +403,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         return mHandler;
     }
 
-    private int mWindowHeight;
-    private int mWindowWidth;
+
     private void startAnimation(Weather mCurrentWeather){
         DisplayMetrics displaymetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
@@ -407,6 +421,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         stopAnimation();
         int position = demoCounter%9;
         updateLayout(getFakeWeather(position));
+//        animationContainer.setVisibility(View.VISIBLE);
     }
 
     public Weather getFakeWeather(int position){
@@ -445,18 +460,14 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
     public void stopAnimation(){
         if(mHandler != null){
-            if(rainRunnable != null){
-                mHandler.removeCallbacks(rainRunnable);
-//                basecontainer.removeAllViews();
-            }
-            if(snowRunnable != null){
-                mHandler.removeCallbacks(snowRunnable);
-//                basecontainer.removeAllViews();
-            }
-            if(thunderRunnable != null){
-                mHandler.removeCallbacks(thunderRunnable);
-//                basecontainer.removeAllViews();
-            }
+            mHandler.removeCallbacksAndMessages(null);
         }
+        for(int index=0; index<((ViewGroup)animationContainer).getChildCount(); ++index) {
+            View nextChild = ((ViewGroup)animationContainer).getChildAt(index);
+            nextChild.clearAnimation();
+            animationContainer.removeView(nextChild);
+            animationContainer.invalidate();
+        }
+
     }
 }

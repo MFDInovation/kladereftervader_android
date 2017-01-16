@@ -50,28 +50,28 @@ public class WeatherAnimation {
     final static int windScale = 100;
 
     public static void snowAnimation(int windSpeed, AppCompatActivity activity,
-                                     PercentRelativeLayout fatherContainer, int height, int width){
+                                     RelativeLayout fatherContainer, int height, int width){
         int snowDuration = longDuration;
         ImageView animationItem = createRandomImage(activity,fatherContainer,height,width,R.mipmap.snow);
         doWeatherAnimation(activity, animationItem, fatherContainer,windSpeed,snowDuration);
     }
 
     public static void rainAnimation(int windSpeed, AppCompatActivity activity,
-                                     PercentRelativeLayout fatherContainer, int height, int width){
+                                     RelativeLayout fatherContainer, int height, int width){
         int rainDuration = shortDuration;
         ImageView animationItem = createRandomImage(activity,fatherContainer,height,width,R.mipmap.rain);
         doWeatherAnimation(activity,animationItem,fatherContainer,windSpeed,rainDuration);
     }
 
     public static void thunderAnimation(AppCompatActivity activity,
-                                     PercentRelativeLayout fatherContainer, int height, int width){
+                                        RelativeLayout fatherContainer, int height, int width){
         ImageView animationItem = createRandomImage(activity,fatherContainer,height,width,R.mipmap.lightning);
         doThunderAnimation(animationItem,activity,fatherContainer);
     }
 
 
     public static ImageView createRandomImage(AppCompatActivity activity,
-                                  PercentRelativeLayout fatherContainer, int height, int width, int resId){
+                                              RelativeLayout fatherContainer, int height, int width, int resId){
         int randomStartpoint = (int)Math.round(Math.random()*width);
         ImageView animationItem= new ImageView(activity);
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -83,7 +83,7 @@ public class WeatherAnimation {
     }
 
     private static void doThunderAnimation(ImageView animationItem,AppCompatActivity activity,
-                                           PercentRelativeLayout fatherContainer){
+                                           RelativeLayout fatherContainer){
         AnimationSet set = new AnimationSet(true);
         addThunderAnimatior(0.01f,1.0f,animationItem,set,100,fatherContainer,activity);
         addThunderAnimatior(1.0f,0.3f,animationItem,set,200,fatherContainer,activity);
@@ -93,7 +93,7 @@ public class WeatherAnimation {
     }
 
     private static void addThunderAnimatior(float startAlpha, float endAlpha, final ImageView animationItem, AnimationSet set, int duration,
-                                            final PercentRelativeLayout fatherContainer, final AppCompatActivity activity){
+                                            final RelativeLayout fatherContainer, final AppCompatActivity activity){
         AlphaAnimation animation1 = new AlphaAnimation(startAlpha, endAlpha);
         animation1.setDuration(duration);
         animation1.setFillAfter(true);
@@ -118,7 +118,7 @@ public class WeatherAnimation {
     }
 
     private static void doWeatherAnimation(final AppCompatActivity activity, final ImageView animationItem,
-                                           final PercentRelativeLayout fatherContainer, int windSpeed, int duration){
+                                           final RelativeLayout fatherContainer, int windSpeed, int duration){
         float endX =  animationItem.getX()-(float) Math.random()*windSpeed;
         TranslateAnimation newAnimation = new TranslateAnimation(animationItem.getX(),endX,0,fatherContainer.getBottom());
         newAnimation.setDuration(duration);

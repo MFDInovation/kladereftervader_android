@@ -194,7 +194,7 @@ public class ClothesListActivity extends AppCompatActivity implements View.OnCli
                         if(UriList.size()!= 0){
                             saveDataListInSharedPreferences(UriList);//mainactivity can also read data
                         }else {
-                            deleteDataListInSharedPreferences();
+                            deleteDataListInSharedPreferences();//should any delete one list
                         }
                     }
                 });
