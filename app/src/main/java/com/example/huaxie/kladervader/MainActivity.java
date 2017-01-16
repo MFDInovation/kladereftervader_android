@@ -271,10 +271,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 Log.d(TAG, "onClick: demobutton");
                 demoCounter++;
                 startDemo();
-                /*Intent demoIntent = new Intent(this, DemoActivity.class);
-                demoIntent.putExtra(ExtraMessage,tempContainerHeight);
-                startActivity(demoIntent);
-                break;*/
+                break;
             default:
                 Log.d(TAG, "onClick: "+ view.toString()+ "is clicked");
         }
