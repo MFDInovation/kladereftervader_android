@@ -292,12 +292,13 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.egna_bilder_button :
+                stopAnimation();
                 Intent intent = new Intent(this, ClothesListActivity.class);
                 intent.putExtra("tempKey",tempKey);
                 startActivityForResult(intent,ACTIVITY_RESULT_CODE);
-                stopAnimation();
                 break;
             case R.id.demo_button:
+                stopAnimation();
                 Log.d(TAG, "onClick: demobutton");
                 demoCounter++;
                 startDemo();
@@ -465,7 +466,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 fakeWeather = new Weather(WeatherSymbol.WeatherStatus.ClearSky, 25.0,0.0,0.0); //summer
                 break;
             case 5:
-                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Thunder,20.0,0.7,0.0); //summer Thunder and rain
+                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Thunder,20.0,0.75,6); //summer Thunder and rain
                 break;
             case 6:
                 fakeWeather = new Weather(WeatherSymbol.WeatherStatus.ClearSky, 14.0, 0,0); // autumn
