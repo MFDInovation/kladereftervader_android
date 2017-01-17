@@ -6,7 +6,7 @@ package com.example.huaxie.kladervader;
 
 public class Clothing {
     private int imageId;
-    public enum TempStatus {
+    public  enum TempStatus {
         mycketKallt("kängor, varma strumpor, Underställ, täckbyxor, varm tröja, varm jacka, varma vantar, varm mössa, halsduk"),
         kallt("kängor, Underställ, tröja, varm jacka, vantar, mössa, halsduk"),
         nollgradigt("Kängor, Varm jacka, halsduk, mössa, vantar"),
@@ -53,7 +53,7 @@ public class Clothing {
         return imageId;
     }
 
-    public TempStatus getStatus(Weather weather){
+    public static TempStatus getStatus(Weather weather){
        int temp = (int)Math.round(weather.getTemperature());
         if (temp > -100 && temp < -15){
             return TempStatus.mycketKallt;

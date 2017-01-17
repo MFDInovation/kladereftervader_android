@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     private ArrayList<Uri> mViewPagerList;
     private ViewPager mViewPager;
     private int tempContainerHeight;
-    private String tempKey;
+    private Clothing.TempStatus tempKey;
     private int demoCounter = 0;
     public final static String ExtraMessage = "height";
     private Runnable thunderRunnable = null;
@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     private Runnable snowRunnable = null;
     private int mWindowHeight;
     private int mWindowWidth;
-    private Weather demoWeather;
+    private Weather demoWeather = mCurrentWeather;
 
 
     private WeatherAnimation mWeatherAnimation = null;
@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     protected static final int ACTIVITY_RESULT_CODE = 1;
     public static final String gpsError = "gpsError";
     public static final String networkError = "networkError";
+    public static final int demoNumber = 9;
 
 
     private PagerAdapter adapterViewPager;
@@ -138,9 +139,9 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                         }else {
                             updateLayout(mCurrentWeather);
                             progressBar.setVisibility(View.GONE);
-                            tempKey = Integer.toString((int)Math.round(mCurrentWeather.temperature));
+                            tempKey = Clothing.getStatus(weather);
                             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-                            Set<String> oldDataSet  = preferences.getStringSet(tempKey,null);
+                            Set<String> oldDataSet  = preferences.getStringSet(tempKey.getName(),null);
                             if(oldDataSet != null){
                                 mUriList = new ArrayList<String>(oldDataSet);
                                 updateViewPager();
@@ -180,10 +181,10 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             }
         });
 
-        tempKey = Integer.toString((int)Math.round(temp));
+        tempKey = Clothing.getStatus(weather);
         Log.d(TAG, "updateLayout: tempkey" +tempKey);
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-        Set<String> oldDataSet  = preferences.getStringSet(tempKey,null);
+        Set<String> oldDataSet  = preferences.getStringSet(tempKey.getName(),null);
         if(oldDataSet != null){
             mUriList = new ArrayList<String>(oldDataSet);
             updateViewPager();
@@ -247,7 +248,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 switch (resultCode) {
                     case AppCompatActivity.RESULT_OK:
                         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-                        Set<String> oldDataSet  = preferences.getStringSet(tempKey,null);
+                        Set<String> oldDataSet  = preferences.getStringSet(tempKey.getName(),null);
                         if(oldDataSet != null){
                             mUriList = new ArrayList<String>(oldDataSet);
                             updateViewPager();
@@ -440,7 +441,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
     private void startDemo(){
         stopAnimation();
-        int position = demoCounter%9;
+        int position = demoCounter%(demoNumber+1);
         demoWeather = getFakeWeather(position);
         updateLayout(demoWeather);
 //        animationContainer.setVisibility(View.VISIBLE);
@@ -456,21 +457,24 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Lightsleet, 1.0,0.75,5); //spring rain and snow
                 break;
             case 3:
-                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.ClearSky, 25.0,0.0,0.0); //summer
+                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Lightsleet, 2.0,0.6,7); //spring rain and snow
                 break;
             case 4:
-                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Thunder,20.0,0.7,0.0); //summer Thunder and rain
+                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.ClearSky, 25.0,0.0,0.0); //summer
                 break;
             case 5:
-                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.ClearSky, 14.0, 0,0); // autumn
+                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Thunder,20.0,0.7,0.0); //summer Thunder and rain
                 break;
             case 6:
-                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Rain,10.0, 0.75, 0); //autumn rain
+                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.ClearSky, 14.0, 0,0); // autumn
                 break;
             case 7:
-                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Snowshowers, -9, 0.75, 8); //winter
+                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Rain,10.0, 0.75, 0); //autumn rain
                 break;
             case 8:
+                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Snowshowers, -9, 0.75, 8); //winter
+                break;
+            case 9:
                 fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Cloudysky, -20,0,0); // winter no snow but cold
                 break;
             default:
