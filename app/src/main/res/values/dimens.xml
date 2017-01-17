@@ -5,4 +5,7 @@
     <dimen name="text_small_margin">5dp</dimen>
     <dimen name="text_large_margin">15dp</dimen>
     <dimen name="text_xlarge_margin">15dp</dimen>
+    <dimen name="text_xxxxlarge_margin">40dp</dimen>
+    <dimen name="temp_text_size">70sp</dimen>
+    <dimen name="temp_text_height">100dp</dimen>
 </resources>

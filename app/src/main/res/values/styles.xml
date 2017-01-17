@@ -12,7 +12,7 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">#077BEE</item>
-        <item name="android:shadowColor">#02203E</item>
+        <item name="android:shadowColor">#D0E6FC</item>
         <item name="android:textSize">20sp</item>
         <item name="android:shadowDx">2</item>
         <item name="android:shadowDy">2</item>

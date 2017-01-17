@@ -81,6 +81,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         mViewPager = (ViewPager) findViewById(R.id.myViewPager);
         TextView mDemoButton = (TextView) findViewById(R.id.demo_button);
         mDemoButton.setOnClickListener(this);
+        TextView utvaderaButton = (TextView)findViewById(R.id.evaluation_button);
+        utvaderaButton.setOnClickListener(this);
 
         progressBar.setVisibility(View.VISIBLE);
 
@@ -289,6 +291,9 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 demoCounter++;
                 startDemo();
                 break;
+            case R.id.evaluation_button:
+                Log.d(TAG, "onClick: evalutation button");
+                evaluateApp();
             default:
                 Log.d(TAG, "onClick: "+ view.toString()+ "is clicked");
         }
@@ -472,5 +477,10 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             animationContainer.invalidate();
         }
 
+    }
+
+    private void evaluateApp(){
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.mfd.se/kladereftervader"));
+        startActivity(browserIntent);
     }
 }
