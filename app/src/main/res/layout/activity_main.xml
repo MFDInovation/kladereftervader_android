@@ -65,6 +65,11 @@
                 android:layout_alignParentBottom="true"/>
         </RelativeLayout>
 
+        <RelativeLayout
+            android:id="@+id/animation_container"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent">
+        </RelativeLayout>
 
         <RelativeLayout
             android:id="@+id/viewPager_container"
@@ -100,11 +105,7 @@
 
         </RelativeLayout>
 
-        <RelativeLayout
-            android:id="@+id/animation_container"
-            android:layout_height="match_parent"
-            android:layout_width="match_parent">
-        </RelativeLayout>
+
 
     </android.support.percent.PercentRelativeLayout>
 

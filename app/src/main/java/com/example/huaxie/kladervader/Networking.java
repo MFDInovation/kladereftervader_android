@@ -33,9 +33,12 @@ public class Networking extends AsyncTask< String, String, Weather > {
     private URL weatherInfoURL;
     private String dataBuffer;
     private Weather mWeather;
+    private String error = null;
+
+    public static final String errorMessage = "error";
 
     public interface AsyncResponse {
-        void processFinish(Weather weather);
+        void processFinish(Weather weather, String error);
     }
 
     public AsyncResponse delegate = null;
@@ -71,8 +74,10 @@ public class Networking extends AsyncTask< String, String, Weather > {
             return parseWeather(getJsonObject(dataBuffer));
 
         } catch (MalformedURLException e) {
+            error = errorMessage;
             e.printStackTrace();
         } catch (IOException e) {
+            error = errorMessage;
             e.printStackTrace();
         } finally {
             if (connection != null) {
@@ -83,6 +88,7 @@ public class Networking extends AsyncTask< String, String, Weather > {
                     reader.close();
                 }
             } catch (IOException e) {
+                error = errorMessage;
                 e.printStackTrace();
             }
         }
@@ -112,7 +118,7 @@ public class Networking extends AsyncTask< String, String, Weather > {
 
     @Override
     protected void onPostExecute(Weather weather) {
-        delegate.processFinish(weather);
+        delegate.processFinish(weather,error);
     }
 }
 

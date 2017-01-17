@@ -57,10 +57,14 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     private int mWindowWidth;
     private Weather demoWeather;
 
+
     private WeatherAnimation mWeatherAnimation = null;
 
     protected static final int REQUEST_ACCESS_COURSE_LOCATION = 118;
     protected static final int ACTIVITY_RESULT_CODE = 1;
+    public static final String gpsError = "gpsError";
+    public static final String networkError = "networkError";
+
 
     private PagerAdapter adapterViewPager;
 
@@ -120,13 +124,17 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         mCurrentWeather = null;
         final Networking newNetworking = new Networking(new Networking.AsyncResponse(){
             @Override
-            public void processFinish(final Weather weather) {
+            public void processFinish(final Weather weather, String error) {
+                if(error != null){
+                    showError(networkError);
+                }
                 mCurrentWeather = weather;
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         if(mCurrentWeather == null){
                             Toast.makeText(MainActivity.this,"Did not get the weather info,try again", Toast.LENGTH_LONG).show();
+                            showError(networkError);
                         }else {
                             updateLayout(mCurrentWeather);
                             progressBar.setVisibility(View.GONE);
@@ -231,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                         break;
                     case AppCompatActivity.RESULT_CANCELED:
                         Log.d(TAG, "onActivityResult: client donnt allow to enable GPS");
-                        finish();
+                        showError(gpsError);
                         break;
                 }
                 break;
@@ -348,11 +356,17 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             View itemView = mInflater.inflate(R.layout.picture_list_row, container, false);
-            ImageView imageView = (ImageView) itemView.findViewById(R.id.picture_place_holder);
-            Uri URI = dataList.get(position);
-            String imagePath = BitmapWorkerTask.getPathFromImageUri(URI,mContext);
-            BitmapWorkerTask ImageLoader = new BitmapWorkerTask(imageView);
-            ImageLoader.execute(imagePath);
+            try{
+                ImageView imageView = (ImageView) itemView.findViewById(R.id.picture_place_holder);
+                Uri URI = dataList.get(position);
+                String imagePath = BitmapWorkerTask.getPathFromImageUri(URI,mContext);
+                BitmapWorkerTask ImageLoader = new BitmapWorkerTask(imageView);
+                ImageLoader.execute(imagePath);
+            }catch (OutOfMemoryError e1) {
+                e1.printStackTrace();
+                Log.e("Memory exceptions", "exceptions" + e1);
+                return null;
+            }
             container.addView(itemView);
             return itemView;
         }
@@ -482,5 +496,14 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     private void evaluateApp(){
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.mfd.se/kladereftervader"));
         startActivity(browserIntent);
+    }
+
+    private void showError(String key){
+        progressBar.setVisibility(View.INVISIBLE);
+        if(key.equals(gpsError)){
+            baseBackground.setImageResource(R.mipmap.gps_error);
+        }else if (key.equals(networkError)){
+            baseBackground.setImageResource(R.mipmap.internet_error);
+        }
     }
 }
