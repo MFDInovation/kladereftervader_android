@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         Log.d(TAG, "updateLayout: tempkey" +tempKey);
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
         Set<String> oldDataSet  = preferences.getStringSet(tempKey.getName(),null);
-        if(oldDataSet != null){
+        if(oldDataSet != null && !oldDataSet.isEmpty()){
             mUriList = new ArrayList<String>(oldDataSet);
             updateViewPager();
         }else {
@@ -194,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             recoverImageView();
             Clothing clothing = new Clothing();
             int portraitId = clothing.getClosingImage( weather);
-            portrait.setImageResource(portraitId);
+            loadClothes(portrait,this,this,portrait.getHeight(),portrait.getWidth(),portraitId);
         }
         //start animation
         startAnimation(weather);
@@ -249,14 +249,16 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                     case AppCompatActivity.RESULT_OK:
                         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
                         Set<String> oldDataSet  = preferences.getStringSet(tempKey.getName(),null);
-                        if(oldDataSet != null){
+                        if(oldDataSet != null&&!oldDataSet.isEmpty()){
                             mUriList = new ArrayList<String>(oldDataSet);
                             updateViewPager();
                         }else {
                             mUriList = new ArrayList<String>();
                             recoverImageView();
                         }
-                        startAnimation(demoWeather);
+                        if(demoWeather != null){
+                            startAnimation(demoWeather);
+                        }
                         break;
                 }
         }
@@ -509,5 +511,9 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         }else if (key.equals(networkError)){
             baseBackground.setImageResource(R.mipmap.internet_error);
         }
+    }
+    private void loadClothes(ImageView imageView, Context mcontext, MainActivity activity, int height, int width, int resId){
+        BitmapWorkerTaskDemo clothesLoader = new BitmapWorkerTaskDemo(imageView,mcontext,activity,height,width);
+        clothesLoader.execute(resId);
     }
 }
