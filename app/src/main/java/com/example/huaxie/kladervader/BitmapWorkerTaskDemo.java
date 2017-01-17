@@ -33,7 +33,7 @@ public class BitmapWorkerTaskDemo extends AsyncTask<Integer, Void, Bitmap> {
     protected Bitmap doInBackground(Integer... integers) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         int old = BitmapWorkerTask.calculateInSampleSize(options,width, height);
-        options.inSampleSize = 3;
+        options.inSampleSize = 2;
         options.inJustDecodeBounds = false;
         Bitmap changedImage = BitmapFactory.decodeResource(mContext.getResources(),integers[0],options);
         return changedImage;

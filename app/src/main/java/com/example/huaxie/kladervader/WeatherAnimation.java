@@ -5,6 +5,8 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -53,30 +55,30 @@ public class WeatherAnimation {
     public static final int longImageHeight = 137;
 
     public static void snowAnimation(int windSpeed, AppCompatActivity activity,
-                                     RelativeLayout fatherContainer, int height, int width){
+                                     RelativeLayout fatherContainer, int height, int width, Bitmap image){
         int snowDuration = longDuration;
         int snowHeight = smallImageHeight + (int)(Math.random()*smallImageHeight);;
-        ImageView animationItem = createRandomImage(activity,fatherContainer,height,width,R.mipmap.snow,snowHeight);
+        ImageView animationItem = createRandomImage(activity,fatherContainer,height,width,image,snowHeight);
         doWeatherAnimation(activity, animationItem, fatherContainer,windSpeed,snowDuration);
     }
 
     public static void rainAnimation(int windSpeed, AppCompatActivity activity,
-                                     RelativeLayout fatherContainer, int height, int width){
+                                     RelativeLayout fatherContainer, int height, int width,Bitmap image){
         int rainDuration = shortDuration;
         int rainHeight = longImageHeight + (int)(Math.random()*longImageHeight);
-        ImageView animationItem = createRandomImage(activity,fatherContainer,height,width,R.mipmap.rain,rainHeight);
+        ImageView animationItem = createRandomImage(activity,fatherContainer,height,width,image,rainHeight);
         doWeatherAnimation(activity,animationItem,fatherContainer,windSpeed,rainDuration);
     }
 
     public static void thunderAnimation(AppCompatActivity activity,
-                                        RelativeLayout fatherContainer, int height, int width){
-        ImageView animationItem = createRandomImage(activity,fatherContainer,height,width,R.mipmap.lightning,0);
+                                        RelativeLayout fatherContainer, int height, int width, Bitmap image){
+        ImageView animationItem = createRandomImage(activity,fatherContainer,height,width,image,0);
         doThunderAnimation(animationItem,activity,fatherContainer);
     }
 
 
     public static ImageView createRandomImage(AppCompatActivity activity,
-                                              RelativeLayout fatherContainer, int height, int width, int resId, int randomHeight){
+                                              RelativeLayout fatherContainer, int height, int width, Bitmap image, int randomHeight){
         int randomStartpoint = (int)Math.round(Math.random()*width);
         ImageView animationItem= new ImageView(activity);
         RelativeLayout.LayoutParams params;
@@ -87,7 +89,7 @@ public class WeatherAnimation {
         }
         params.setMarginStart(randomStartpoint);
         animationItem.setLayoutParams(params);
-        animationItem.setImageResource(resId);
+        animationItem.setImageBitmap(image);
         fatherContainer.addView(animationItem);
         return animationItem;
     }
@@ -213,6 +215,7 @@ public class WeatherAnimation {
         thunderBundle.putString("status","thunder");
         thunderBundle.putInt("interval",interval);
         thunderBundle.putInt("windspeed", windSpeed);
+        thunderBundle.putParcelable("picture",getBitmap(activity,R.mipmap.lightning));
         Message thunderMsg = new Message();
         thunderMsg.setData(thunderBundle);
         activity.getHandler().sendMessage(thunderMsg);
@@ -228,6 +231,7 @@ public class WeatherAnimation {
         snowbundle.putString("status","snow");
         snowbundle.putInt("interval",interval);
         snowbundle.putInt("windspeed", windSpeed);
+        snowbundle.putParcelable("picture",getBitmap(activity,R.mipmap.snow));
         Message msg1 = new Message();
         msg1.setData(snowbundle);
         activity.getHandler().sendMessage(msg1);
@@ -238,6 +242,7 @@ public class WeatherAnimation {
         rainbundle.putString("status","rain");
         rainbundle.putInt("interval",interval);
         rainbundle.putInt("windspeed", windSpeed);
+        rainbundle.putParcelable("picture",getBitmap(activity,R.mipmap.rain));
         Message msg2 = new Message();
         msg2.setData(rainbundle);
         activity.getHandler().sendMessage(msg2);
@@ -253,6 +258,7 @@ public class WeatherAnimation {
         rainbundle.putString("status","rain");
         rainbundle.putInt("interval",interval);
         rainbundle.putInt("windspeed", windSpeed);
+        rainbundle.putParcelable("picture",getBitmap(activity,R.mipmap.rain));
         Message rainmsg = new Message();
         rainmsg.setData(rainbundle);
         activity.getHandler().sendMessage(rainmsg);
@@ -269,8 +275,14 @@ public class WeatherAnimation {
         snowbundle.putString("status","snow");
         snowbundle.putInt("interval",interval);
         snowbundle.putInt("windspeed", windSpeed);
+        snowbundle.putParcelable("picture",getBitmap(activity,R.mipmap.snow));
         Message snowmsg = new Message();
         snowmsg.setData(snowbundle);
         activity.getHandler().sendMessage(snowmsg);
+    }
+
+    private static Bitmap getBitmap(Activity activity, int id){
+        Bitmap bm = BitmapFactory.decodeResource(activity.getResources(),id);
+        return bm;
     }
 }

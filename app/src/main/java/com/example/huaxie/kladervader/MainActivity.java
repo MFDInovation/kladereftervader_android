@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -390,12 +391,13 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             String status = bundle.getString("status");
             final int interval = bundle.getInt("interval");
             final int windspeed = bundle.getInt("windspeed");
+            final Bitmap picture = bundle.getParcelable("picture");
             if(status.equals("snow")){
                 Log.d(TAG, "handleMessage: snow");
                 mHandler.post(snowRunnable = new Runnable() {
                     @Override
                     public void run() {
-                        WeatherAnimation.snowAnimation(windspeed,MainActivity.this,animationContainer,mWindowHeight,mWindowWidth);
+                        WeatherAnimation.snowAnimation(windspeed,MainActivity.this,animationContainer,mWindowHeight,mWindowWidth,picture);
                         mHandler.postDelayed(this, interval);
                     }
                 });
@@ -405,7 +407,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 mHandler.post(rainRunnable = new Runnable() {
                     @Override
                     public void run() {
-                        WeatherAnimation.rainAnimation(windspeed,MainActivity.this,animationContainer,mWindowHeight,mWindowWidth);
+                        WeatherAnimation.rainAnimation(windspeed,MainActivity.this,animationContainer,mWindowHeight,mWindowWidth,picture);
                         mHandler.postDelayed(this, interval);
                     }
                 });
@@ -415,7 +417,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 mHandler.post(thunderRunnable = new Runnable() {
                     @Override
                     public void run() {
-                        WeatherAnimation.thunderAnimation(MainActivity.this,animationContainer,mWindowHeight,mWindowWidth);
+                        WeatherAnimation.thunderAnimation(MainActivity.this,animationContainer,mWindowHeight,mWindowWidth,picture);
                         mHandler.postDelayed(this, interval);
                     }
                 });
