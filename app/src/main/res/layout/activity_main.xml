@@ -33,6 +33,7 @@
             android:layout_alignParentTop="true">
 
             <TextView
+                android:textStyle="bold"
                 android:id="@+id/temp"
                 android:layout_width="wrap_content"
                 android:layout_height="100dp"
@@ -41,31 +42,28 @@
                 android:layout_centerVertical="true"
                 android:textSize="80sp"
                 android:textAlignment="center"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowRadius="2"
                 android:layout_marginStart="40dp"/>
 
             <TextView
+                style="@style/TextViewFont"
                 android:id="@+id/egna_bilder_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:text="@string/egna_bilder"
-                android:textSize="20sp"
-                android:textColor="@color/colorPrimary"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentTop="true"
-                android:layout_marginTop="20dp"
-                android:layout_marginEnd="18dp"/>
+                android:layout_marginTop="@dimen/text_xlarge_margin"
+                android:layout_marginEnd="@dimen/text_large_margin"/>
 
             <TextView
                 android:id="@+id/demo_button"
+                style="@style/TextViewFont"
                 android:text = "@string/demo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:layout_below="@+id/egna_bilder_button"
-                android:layout_alignStart="@+id/egna_bilder_button"
-                android:textSize="20sp"
-                android:textColor="@color/colorPrimary"
-                android:padding="5dp"
-                android:layout_marginTop="5dp"/>
+                android:layout_alignEnd="@+id/egna_bilder_button"
+                android:layout_marginTop="@dimen/text_small_margin"
+                android:layout_alignParentBottom="true"/>
         </RelativeLayout>
 
 
@@ -92,6 +90,14 @@
                 android:layout_alignParentTop="true"
                 android:layout_toEndOf="@+id/myViewPager"
                 android:visibility="gone"/>
+
+            <TextView
+                android:text="@string/utv_dera_appen"
+                style="@style/TextViewFont"
+                android:id="@+id/evaluation_link"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentStart="true"
+                android:layout_margin="@dimen/text_small_margin"/>
 
         </RelativeLayout>
 
