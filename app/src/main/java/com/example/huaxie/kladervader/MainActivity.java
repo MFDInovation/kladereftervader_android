@@ -114,6 +114,9 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     @Override
     protected void onResume() {
         super.onResume();
+        if(demoWeather!= null){
+            startAnimation(demoWeather);
+        }
     }
 
     @Override
@@ -306,6 +309,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 break;
             case R.id.evaluation_button:
                 Log.d(TAG, "onClick: evalutation button");
+                stopAnimation();
                 evaluateApp();
             default:
                 Log.d(TAG, "onClick: "+ view.toString()+ "is clicked");
@@ -462,7 +466,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Lightsleet, 1.0,0.75,5); //spring rain and snow
                 break;
             case 3:
-                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Lightsleet, 2.0,0.6,7); //spring rain and snow
+                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Lightsleet, 2.0,0.5,7); //spring rain and snow
                 break;
             case 4:
                 fakeWeather = new Weather(WeatherSymbol.WeatherStatus.ClearSky, 25.0,0.0,0.0); //summer
@@ -474,7 +478,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 fakeWeather = new Weather(WeatherSymbol.WeatherStatus.ClearSky, 14.0, 0,0); // autumn
                 break;
             case 7:
-                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Rain,10.0, 0.75, 0); //autumn rain
+                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Rain,10.0, 0.6, 0); //autumn rain
                 break;
             case 8:
                 fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Snowshowers, -9, 0.75, 8); //winter

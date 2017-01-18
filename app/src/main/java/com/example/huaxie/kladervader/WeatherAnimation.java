@@ -49,7 +49,7 @@ public class WeatherAnimation {
     final static int large = 150;
     final static int xlarge = 200;
     final static int longDuration = 6000;
-    final static int shortDuration = 300;
+    final static int shortDuration = 400;
     final static int windScale = 100;
     public static final int smallImageHeight = 27;
     public static final int longImageHeight = 137;
