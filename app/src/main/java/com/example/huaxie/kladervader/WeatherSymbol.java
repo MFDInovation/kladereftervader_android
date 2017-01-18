@@ -75,34 +75,49 @@ class WeatherSymbol {
         switch (status){
             case ClearSky:
                 mSymbolPriority = 1;
+                break;
             case NearlyclearSky:
                 mSymbolPriority = 2;
+                break;
             case Variablecloudiness:
                 mSymbolPriority = 3;
+                break;
             case Halfclearsky:
                 mSymbolPriority = 4;
+                break;
             case Cloudysky:
                 mSymbolPriority = 5;
+                break;
             case Overcast:
                 mSymbolPriority = 6;
+                break;
             case Fog:
                 mSymbolPriority = 7;
+                break;
             case Rainshowers:
                 mSymbolPriority = 8;
+                break;
             case Rain:
                 mSymbolPriority = 9;
+                break;
             case Snowshowers:
                 mSymbolPriority = 10;
+                break;
             case Snowfall:
                 mSymbolPriority = 11;
+                break;
             case Thunderstorm:
                 mSymbolPriority = 12;
+                break;
             case Thunder:
                 mSymbolPriority = 13;
+                break;
             case Lightsleet:
                 mSymbolPriority = 14;
+                break;
             case Sleet:
                 mSymbolPriority = 15;
+                break;
         }
         return mSymbolPriority;
     }
