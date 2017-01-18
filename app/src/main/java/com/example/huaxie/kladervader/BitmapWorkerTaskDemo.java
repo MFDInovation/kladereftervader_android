@@ -14,29 +14,21 @@ import java.lang.ref.WeakReference;
  * Created by huaxie on 2017-01-16.
  */
 
-public class BitmapWorkerTaskDemo extends AsyncTask<Integer, Void, Bitmap> {
+class BitmapWorkerTaskDemo extends AsyncTask<Integer, Void, Bitmap> {
     private Context mContext;
     private final WeakReference<ImageView> imageViewReference;
-    private MainActivity activity;
-    private int height;
-    private int width;
     public static final String TAG = "BitmapWorkerTaskDemo";
 
-    public BitmapWorkerTaskDemo(ImageView imageView, Context mcontext, MainActivity activity, int height, int width) {
-        imageViewReference = new WeakReference<ImageView>(imageView);
+    BitmapWorkerTaskDemo(ImageView imageView, Context mcontext) {
+        imageViewReference = new WeakReference<>(imageView);
         this.mContext = mcontext;
-        this.activity = activity;
-        this.height = height;
-        this.width = width;
     }
     @Override
     protected Bitmap doInBackground(Integer... integers) {
         BitmapFactory.Options options = new BitmapFactory.Options();
-        int old = BitmapWorkerTask.calculateInSampleSize(options,width, height);
         options.inSampleSize = 2;
         options.inJustDecodeBounds = false;
-        Bitmap changedImage = BitmapFactory.decodeResource(mContext.getResources(),integers[0],options);
-        return changedImage;
+        return BitmapFactory.decodeResource(mContext.getResources(),integers[0],options);
     }
 
     @Override

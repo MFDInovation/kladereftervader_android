@@ -1,7 +1,6 @@
 package com.example.huaxie.kladervader;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -16,15 +15,14 @@ import java.lang.ref.WeakReference;
  * Created by huaxie on 2017-01-11.
  */
 
-public class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
+class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
 
     private static final int pix = 200;
     private final WeakReference<ImageView> imageViewReference;
-    private int data = 0;
 
-    public BitmapWorkerTask(ImageView imageView) {
+    BitmapWorkerTask(ImageView imageView) {
         // Use a WeakReference to ensure the ImageView can be garbage collected
-        imageViewReference = new WeakReference<ImageView>(imageView);
+        imageViewReference = new WeakReference<>(imageView);
     }
 
     // Decode image in background.
@@ -36,7 +34,7 @@ public class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
     // Once complete, see if ImageView is still around and set bitmap.
     @Override
     protected void onPostExecute(Bitmap bitmap) {
-        if (imageViewReference != null && bitmap != null) {
+        if (bitmap != null) {
             final ImageView imageView = imageViewReference.get();
             if (imageView != null) {
                 imageView.setImageBitmap(bitmap);
@@ -44,7 +42,7 @@ public class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
         }
     }
 
-    public static int calculateInSampleSize(
+    static int calculateInSampleSize(
             BitmapFactory.Options options, int reqWidth, int reqHeight) {
         // Raw height and width of image
         final int height = options.outHeight;
@@ -67,8 +65,8 @@ public class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
         return inSampleSize;
     }
 
-    public static Bitmap decodeSampledBitmapFromResource(String path,
-                                                         int reqWidth, int reqHeight) {
+    private static Bitmap decodeSampledBitmapFromResource(String path,
+                                                          int reqWidth, int reqHeight) {
 
         // First decode with inJustDecodeBounds=true to check dimensions
         final BitmapFactory.Options options = new BitmapFactory.Options();
@@ -83,9 +81,10 @@ public class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
         return BitmapFactory.decodeFile(path, options);
     }
 
-    public static String getPathFromImageUri(Uri selectedImage, Context mContext){
+    static String getPathFromImageUri(Uri selectedImage, Context mContext){
         String[] filePathColumn = { MediaStore.Images.Media.DATA };
         Cursor cursor = mContext.getContentResolver().query(selectedImage,filePathColumn, null, null, null);
+        assert cursor != null;
         cursor.moveToFirst();
         int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
         String picturePath = cursor.getString(columnIndex);

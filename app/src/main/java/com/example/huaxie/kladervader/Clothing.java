@@ -4,9 +4,8 @@ package com.example.huaxie.kladervader;
  * Created by huaxie on 2017-01-09.
  */
 
-public class Clothing {
-    private int imageId;
-    public  enum TempStatus {
+class Clothing {
+    enum TempStatus {
         mycketKallt("kängor, varma strumpor, Underställ, täckbyxor, varm tröja, varm jacka, varma vantar, varm mössa, halsduk"),
         kallt("kängor, Underställ, tröja, varm jacka, vantar, mössa, halsduk"),
         nollgradigt("Kängor, Varm jacka, halsduk, mössa, vantar"),
@@ -24,18 +23,18 @@ public class Clothing {
         }
 
         private String name;
-        private TempStatus(String s) {
+        TempStatus(String s) {
             this.name = s;
         }
     }
 
 
-    public int getClosingImage(Weather weather){
+    int getClosingImage(Weather weather){
         return getClosingImage(getStatus(weather));
     }
 
     private int getClosingImage(TempStatus status){
-        imageId = 0;
+        int imageId = 0;
         switch (status){
             case mycketKallt: return R.mipmap.minus20;
             case kallt: return R.mipmap.minus10;
@@ -53,7 +52,7 @@ public class Clothing {
         return imageId;
     }
 
-    public static TempStatus getStatus(Weather weather){
+    static TempStatus getStatus(Weather weather){
        int temp = (int)Math.round(weather.getTemperature());
         if (temp > -100 && temp < -15){
             return TempStatus.mycketKallt;

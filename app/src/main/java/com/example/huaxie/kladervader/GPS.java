@@ -2,13 +2,10 @@ package com.example.huaxie.kladervader;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.IntentSender;
 import android.location.Location;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -24,14 +21,13 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
-import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 
 /**
  * Created by huaxie on 2017-01-05.
  */
 
-public class GPS implements GoogleApiClient.ConnectionCallbacks,LocationListener,
+class GPS implements GoogleApiClient.ConnectionCallbacks,LocationListener,
         GoogleApiClient.OnConnectionFailedListener,ResultCallback<LocationSettingsResult> {
 
     private static final String TAG = "GPS";
@@ -46,13 +42,13 @@ public class GPS implements GoogleApiClient.ConnectionCallbacks,LocationListener
     private static final int UPDATE_INTERVAL = 10000;
     private static final int FASTEST_INTERVAL = 5000;
 
-    public GPS(AppCompatActivity activity,HasLocationListener listener) {
+    GPS(AppCompatActivity activity, HasLocationListener listener) {
         mActivity = activity;
         mHasLocationListener = listener;
         checkPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION);
     }
 
-    public interface HasLocationListener {
+    interface HasLocationListener {
         void hasLocation(double latitude,double longitude);
     }
 
@@ -71,13 +67,13 @@ public class GPS implements GoogleApiClient.ConnectionCallbacks,LocationListener
 
     }
 
-    public void stop() {
+    void stop() {
         if (mGoogleApiClient != null) {
             mGoogleApiClient.disconnect();
         }
     }
 
-    public void doWhenPermissionIsGranted() {
+    void doWhenPermissionIsGranted() {
         Log.d(TAG, "doWhenPermissionIsGranted: ");
 //        setupTimeoutHandler();
         buildGoogleApiClient(mActivity);
@@ -90,13 +86,12 @@ public class GPS implements GoogleApiClient.ConnectionCallbacks,LocationListener
             Log.d(TAG, "checkPermission: ");
             if (PermissionUtil.checkPermission(activity, locationPermission)) {
                 doWhenPermissionIsGranted();
-            } else {
             }
         }
     }
 
 
-    public Location updateLocation(){
+    private Location updateLocation(){
         try{
             Log.d(TAG, "updateLocation: updating");
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
@@ -116,7 +111,7 @@ public class GPS implements GoogleApiClient.ConnectionCallbacks,LocationListener
 
     }
 
-    protected void enableGPS() {
+    private void enableGPS() {
         Log.d(TAG, "enableGPS: ");
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(UPDATE_INTERVAL);
@@ -140,7 +135,6 @@ public class GPS implements GoogleApiClient.ConnectionCallbacks,LocationListener
     @Override
     public void onResult(@NonNull LocationSettingsResult result) {
         final Status status = result.getStatus();
-        final LocationSettingsStates state = result.getLocationSettingsStates();
         switch (status.getStatusCode()) {
             case LocationSettingsStatusCodes.SUCCESS:
                 Log.d(TAG, "onResult: updatelocation");
@@ -149,7 +143,7 @@ public class GPS implements GoogleApiClient.ConnectionCallbacks,LocationListener
             case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
                 try {
                     status.startResolutionForResult(mActivity, MainActivity.REQUEST_ACCESS_COURSE_LOCATION);
-                } catch (IntentSender.SendIntentException e) {
+                } catch (IntentSender.SendIntentException ignored) {
                 }
                 break;
             case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
@@ -157,9 +151,9 @@ public class GPS implements GoogleApiClient.ConnectionCallbacks,LocationListener
         }
     }
 
-    public static double getlatitude(){return latitude;}
+    static double getlatitude(){return latitude;}
 
-    public static double getlongitude(){return longitude;}
+    static double getlongitude(){return longitude;}
 
     @Override
     public void onLocationChanged(Location location) {

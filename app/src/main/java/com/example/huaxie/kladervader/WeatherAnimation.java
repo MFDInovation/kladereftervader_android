@@ -1,84 +1,62 @@
 package com.example.huaxie.kladervader;
 
-import android.animation.Animator;
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Message;
-import android.support.percent.PercentRelativeLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
-import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.RelativeLayout;
-
-import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import static com.example.huaxie.kladervader.JsonParser.TAG;
-import static com.example.huaxie.kladervader.MainActivity.*;
-import static com.example.huaxie.kladervader.WeatherSymbol.WeatherStatus.Rain;
-import static com.example.huaxie.kladervader.WeatherSymbol.WeatherStatus.Rainshowers;
-import static com.example.huaxie.kladervader.WeatherSymbol.WeatherStatus.Thunder;
-import static com.example.huaxie.kladervader.WeatherSymbol.WeatherStatus.Thunderstorm;
 
 /**
  * Created by huaxie on 2017-01-11.
  */
 
-public class WeatherAnimation {
+class WeatherAnimation {
 
-    final static String TAG = "Animation";
-    final static int small = 50;
-    final static int medium = 100;
+    private final static String TAG = "Animation";
+    private final static int small = 50;
+    private final static int medium = 100;
     final static int large = 150;
-    final static int xlarge = 200;
-    final static int longDuration = 6000;
-    final static int shortDuration = 400;
-    final static int windScale = 100;
-    public static final int smallImageHeight = 27;
-    public static final int longImageHeight = 137;
+    private final static int xlarge = 200;
+    private final static int longDuration = 6000;
+    private final static int shortDuration = 400;
+    private final static int windScale = 100;
+    private static final int smallImageHeight = 27;
+    private static final int longImageHeight = 137;
 
-    public static void snowAnimation(int windSpeed, AppCompatActivity activity,
-                                     RelativeLayout fatherContainer, int height, int width, Bitmap image){
+    static void snowAnimation(int windSpeed, AppCompatActivity activity,
+                              RelativeLayout fatherContainer, int height, int width, Bitmap image){
         int snowDuration = longDuration;
         int snowHeight = smallImageHeight + (int)(Math.random()*smallImageHeight);;
         ImageView animationItem = createRandomImage(activity,fatherContainer,height,width,image,snowHeight);
         doWeatherAnimation(activity, animationItem, fatherContainer,windSpeed,snowDuration);
     }
 
-    public static void rainAnimation(int windSpeed, AppCompatActivity activity,
-                                     RelativeLayout fatherContainer, int height, int width,Bitmap image){
+    static void rainAnimation(int windSpeed, AppCompatActivity activity,
+                              RelativeLayout fatherContainer, int height, int width, Bitmap image){
         int rainDuration = shortDuration;
         int rainHeight = longImageHeight + (int)(Math.random()*longImageHeight);
         ImageView animationItem = createRandomImage(activity,fatherContainer,height,width,image,rainHeight);
         doWeatherAnimation(activity,animationItem,fatherContainer,windSpeed,rainDuration);
     }
 
-    public static void thunderAnimation(AppCompatActivity activity,
-                                        RelativeLayout fatherContainer, int height, int width, Bitmap image){
+    static void thunderAnimation(AppCompatActivity activity,
+                                 RelativeLayout fatherContainer, int height, int width, Bitmap image){
         ImageView animationItem = createRandomImage(activity,fatherContainer,height,width,image,0);
         doThunderAnimation(animationItem,activity,fatherContainer);
     }
 
 
-    public static ImageView createRandomImage(AppCompatActivity activity,
-                                              RelativeLayout fatherContainer, int height, int width, Bitmap image, int randomHeight){
+    private static ImageView createRandomImage(AppCompatActivity activity,
+                                               RelativeLayout fatherContainer, int height, int width, Bitmap image, int randomHeight){
         int randomStartpoint = (int)Math.round(Math.random()*width);
         ImageView animationItem= new ImageView(activity);
         RelativeLayout.LayoutParams params;
@@ -166,10 +144,7 @@ public class WeatherAnimation {
         animationItem.startAnimation(newAnimation);
     }
 
-    public static void setAnimationInterval(MainActivity activity, Weather weather){
-        int interval = 0;
-        int intensity = 0;
-        int windSpeed = 0;
+    static void setAnimationInterval(MainActivity activity, Weather weather){
         Bundle rainbundle = new Bundle();
         Bundle snowbundle = new Bundle();
         if(weather.rainfall < 0.1)
@@ -282,7 +257,6 @@ public class WeatherAnimation {
     }
 
     private static Bitmap getBitmap(Activity activity, int id){
-        Bitmap bm = BitmapFactory.decodeResource(activity.getResources(),id);
-        return bm;
+        return BitmapFactory.decodeResource(activity.getResources(),id);
     }
 }

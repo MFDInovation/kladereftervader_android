@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.percent.PercentRelativeLayout;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -35,7 +36,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
     private final String TAG = "MainActivity";
     private TextView mTemp;
-    private PercentRelativeLayout baseContainer;
     private ImageView baseBackground;
     private RelativeLayout animationContainer;
     private RelativeLayout tempContainer;
@@ -43,32 +43,19 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     private Weather mCurrentWeather;
     private ProgressBar progressBar;
     private ImageView portrait;
-    private TextView egnaBilderButton;
     private ArrayList<String> mUriList;
-    private ArrayList<Uri> mViewPagerList;
     private ViewPager mViewPager;
     private int tempContainerHeight;
     private Clothing.TempStatus tempKey;
     private int demoCounter = 0;
-    public final static String ExtraMessage = "height";
-    private Runnable thunderRunnable = null;
-    private Runnable rainRunnable = null;
-    private Runnable snowRunnable = null;
     private int mWindowHeight;
     private int mWindowWidth;
     private Weather demoWeather = mCurrentWeather;
-
-
-    private WeatherAnimation mWeatherAnimation = null;
-
     protected static final int REQUEST_ACCESS_COURSE_LOCATION = 118;
     protected static final int ACTIVITY_RESULT_CODE = 1;
     public static final String gpsError = "gpsError";
     public static final String networkError = "networkError";
     public static final int demoNumber = 9;
-
-
-    private PagerAdapter adapterViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,13 +64,12 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         mTemp = (TextView) findViewById(R.id.temp);
 
         //layout update
-        baseContainer = (PercentRelativeLayout)findViewById(R.id.base_container);
         animationContainer = (RelativeLayout)findViewById(R.id.animation_container);
         baseBackground = (ImageView)findViewById(R.id.base_background);
         tempContainer = (RelativeLayout)findViewById(R.id.temp_container);
         progressBar = (ProgressBar)findViewById(R.id.progress_bar);
         portrait = (ImageView)findViewById(R.id.portrait_container);
-        egnaBilderButton = (TextView)findViewById(R.id.egna_bilder_button);
+        TextView egnaBilderButton = (TextView) findViewById(R.id.egna_bilder_button);
         mViewPager = (ViewPager) findViewById(R.id.myViewPager);
         TextView mDemoButton = (TextView) findViewById(R.id.demo_button);
         mDemoButton.setOnClickListener(this);
@@ -147,10 +133,10 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
                             Set<String> oldDataSet  = preferences.getStringSet(tempKey.getName(),null);
                             if(oldDataSet != null){
-                                mUriList = new ArrayList<String>(oldDataSet);
+                                mUriList = new ArrayList<>(oldDataSet);
                                 updateViewPager();
                             }else {
-                                mUriList = new ArrayList<String>();
+                                mUriList = new ArrayList<>();
                             }
                         }
                     }
@@ -169,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         //update background
         WeatherSymbol.WeatherStatus status =  weather.getWeatherStatus();
         WeatherImage weatherImage = new WeatherImage();
-        int id = weatherImage.getWeatherSymbolImage(status,weatherImage.getCurrentSeason());
+        int id = WeatherImage.getWeatherSymbolImage(status,weatherImage.getCurrentSeason());
         Log.d(TAG, "updateLayout: id" + id);
         baseBackground.setImageResource(id);
         baseBackground.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -190,15 +176,15 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
         Set<String> oldDataSet  = preferences.getStringSet(tempKey.getName(),null);
         if(oldDataSet != null && !oldDataSet.isEmpty()){
-            mUriList = new ArrayList<String>(oldDataSet);
+            mUriList = new ArrayList<>(oldDataSet);
             updateViewPager();
         }else {
-            mUriList = new ArrayList<String>();
+            mUriList = new ArrayList<>();
             //update portrait
             recoverImageView();
             Clothing clothing = new Clothing();
             int portraitId = clothing.getClosingImage( weather);
-            loadClothes(portrait,this,this,portrait.getHeight(),portrait.getWidth(),portraitId);
+            loadClothes(portrait,this,portraitId);
         }
         //start animation
         startAnimation(weather);
@@ -206,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+                                           @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case REQUEST_ACCESS_COURSE_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
@@ -254,10 +240,10 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
                         Set<String> oldDataSet  = preferences.getStringSet(tempKey.getName(),null);
                         if(oldDataSet != null&&!oldDataSet.isEmpty()){
-                            mUriList = new ArrayList<String>(oldDataSet);
+                            mUriList = new ArrayList<>(oldDataSet);
                             updateViewPager();
                         }else {
-                            mUriList = new ArrayList<String>();
+                            mUriList = new ArrayList<>();
                             recoverImageView();
                         }
                         if(demoWeather != null){
@@ -319,9 +305,9 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     private void updateViewPager(){
         progressBar.setVisibility(View.INVISIBLE);
         portrait.setVisibility(View.GONE);
-        mViewPagerList = changeStringListToUri(mUriList);
+        ArrayList<Uri> mViewPagerList = changeStringListToUri(mUriList);
         if(!mViewPagerList.isEmpty()){
-            adapterViewPager = new MyPagerAdapter(mViewPagerList,this);
+            PagerAdapter adapterViewPager = new MyPagerAdapter(mViewPagerList, this);
             mViewPager.setAdapter(adapterViewPager);
             mViewPager.setVisibility(View.VISIBLE);
         }
@@ -333,7 +319,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     }
 
     private ArrayList<Uri> changeStringListToUri(ArrayList<String> mUriList){
-        ArrayList<Uri> list = new ArrayList<Uri>();
+        ArrayList<Uri> list = new ArrayList<>();
         for (String s: mUriList) {
             Uri myUri = Uri.parse(s);
             list.add(myUri);
@@ -346,7 +332,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         private LayoutInflater mInflater;
         private Context mContext;
 
-        public MyPagerAdapter(ArrayList<Uri> dataList, Context context){
+        MyPagerAdapter(ArrayList<Uri> dataList, Context context){
             this.dataList = dataList;
             this.mContext = context;
             this.mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -359,7 +345,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
         @Override
         public boolean isViewFromObject(View view, Object object) {
-            return view == ((RelativeLayout) object);
+            return view == object;
         }
 
         @Override
@@ -396,9 +382,10 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             final int interval = bundle.getInt("interval");
             final int windspeed = bundle.getInt("windspeed");
             final Bitmap picture = bundle.getParcelable("picture");
-            if(status.equals("snow")){
+            assert status != null;
+            if(java.util.Objects.equals(status, "snow")){
                 Log.d(TAG, "handleMessage: snow");
-                mHandler.post(snowRunnable = new Runnable() {
+                mHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         WeatherAnimation.snowAnimation(windspeed,MainActivity.this,animationContainer,mWindowHeight,mWindowWidth,picture);
@@ -406,9 +393,9 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                     }
                 });
 
-            }else if (status.equals("rain")){
+            }else if ("rain".equals(status)){
                 Log.d(TAG, "handleMessage: rain");
-                mHandler.post(rainRunnable = new Runnable() {
+                mHandler.post( new Runnable() {
                     @Override
                     public void run() {
                         WeatherAnimation.rainAnimation(windspeed,MainActivity.this,animationContainer,mWindowHeight,mWindowWidth,picture);
@@ -418,7 +405,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
             }else if (status.equals("thunder")){
                 Log.d(TAG, "handleMessage: thunder");
-                mHandler.post(thunderRunnable = new Runnable() {
+                mHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         WeatherAnimation.thunderAnimation(MainActivity.this,animationContainer,mWindowHeight,mWindowWidth,picture);
@@ -497,8 +484,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         if(mHandler != null){
             mHandler.removeCallbacksAndMessages(null);
         }
-        for(int index=0; index<((ViewGroup)animationContainer).getChildCount(); ++index) {
-            View nextChild = ((ViewGroup)animationContainer).getChildAt(index);
+        for(int index=0; index<animationContainer.getChildCount(); ++index) {
+            View nextChild = animationContainer.getChildAt(index);
             nextChild.clearAnimation();
             animationContainer.removeView(nextChild);
             animationContainer.invalidate();
@@ -519,8 +506,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             baseBackground.setImageResource(R.mipmap.internet_error);
         }
     }
-    private void loadClothes(ImageView imageView, Context mcontext, MainActivity activity, int height, int width, int resId){
-        BitmapWorkerTaskDemo clothesLoader = new BitmapWorkerTaskDemo(imageView,mcontext,activity,height,width);
+    private void loadClothes(ImageView imageView, Context mcontext, int resId){
+        BitmapWorkerTaskDemo clothesLoader = new BitmapWorkerTaskDemo(imageView,mcontext);
         clothesLoader.execute(resId);
     }
 }

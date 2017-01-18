@@ -4,20 +4,14 @@ package com.example.huaxie.kladervader;
  * Created by huaxie on 2017-01-09.
  */
 
-public class WeatherSymbol {
-    private int mSymbolValue;
+class WeatherSymbol {
     private int mSymbolPriority;
-    private WeatherStatus mStatus;
 
-    public WeatherSymbol(int symbolValue){
-        this.mSymbolValue = symbolValue;
+    WeatherSymbol(int symbolValue){
         this.mSymbolPriority = getPriority(getWeatherStatus(symbolValue));
     }
-    public WeatherSymbol(WeatherStatus status){
-        this.mStatus = status;
-    }
 
-    public enum WeatherStatus{
+    enum WeatherStatus{
             ClearSky("ClearSky"),
             NearlyclearSky("NearlyclearSky"),
             Variablecloudiness("Variablecloudiness"),
@@ -34,15 +28,12 @@ public class WeatherSymbol {
             Sleet("Sleet"),
             Snowfall("Snowfall");
 
-        private String description;
-        private WeatherStatus(String s) {
-            description = s;
-        }
+        WeatherStatus(String s) {}
     }
 
 
 
-    public WeatherStatus getWeatherStatus(int symbolValue) {
+    WeatherStatus getWeatherStatus(int symbolValue) {
         switch (symbolValue) {
             case 1:
                 return WeatherStatus.ClearSky;
@@ -116,12 +107,9 @@ public class WeatherSymbol {
         return mSymbolPriority;
     }
 
-    public int getmSymbolPriority() {
+    int getmSymbolPriority() {
         return mSymbolPriority;
     }
 
-    public int getmSymbolValue() {
-        return mSymbolValue;
-    }
 }
 

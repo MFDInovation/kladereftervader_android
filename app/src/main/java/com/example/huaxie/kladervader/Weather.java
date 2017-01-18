@@ -1,23 +1,22 @@
 package com.example.huaxie.kladervader;
 
-import org.json.JSONObject;
 
 /**
  * Created by huaxie on 2017-01-03.
  */
 
-public class Weather {
-    public int symbol;
-    public double temperature;
-    public double rainfall;
-    public double windSpeed;
-    public WeatherSymbol.WeatherStatus weatherSymbol;
+class Weather {
+    int symbol;
+    double temperature;
+    double rainfall;
+    double windSpeed;
+    WeatherSymbol.WeatherStatus weatherSymbol;
 
 
 
-    public Weather(){ new Weather(0,0,0,0);};
+    Weather(){ new Weather(0,0,0,0);}
 
-    public Weather(int symbol, double temperature, double rainfall, double windSpeed){
+    private Weather(int symbol, double temperature, double rainfall, double windSpeed){
         this.symbol = symbol;
         this.temperature = temperature;
         this.rainfall = rainfall;
@@ -29,7 +28,7 @@ public class Weather {
         }
     }
 
-    public Weather(WeatherSymbol.WeatherStatus weatherSymbol, double temperature, double rainfall, double windSpeed){
+    Weather(WeatherSymbol.WeatherStatus weatherSymbol, double temperature, double rainfall, double windSpeed){
         this.temperature = temperature;
         this.rainfall = rainfall;
         this.windSpeed = windSpeed;
@@ -41,23 +40,16 @@ public class Weather {
         return "symbol: "+symbol + "temperature: " + temperature + "rainfall: " + rainfall + "windSpeed :" +windSpeed + "weathersymbol" + getWeatherStatus();
     }
 
-    public int getSymbol() {
-        return symbol;
-    }
 
-    public double getRainfall() {
+    double getRainfall() {
         return rainfall;
     }
 
-    public double getTemperature() {
+    double getTemperature() {
         return temperature;
     }
 
-    public double getWindSpeed() {
-        return windSpeed;
-    }
-
-    public WeatherSymbol.WeatherStatus getWeatherStatus(){
+    WeatherSymbol.WeatherStatus getWeatherStatus(){
         return weatherSymbol;
     }
 }

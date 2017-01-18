@@ -26,16 +26,11 @@ import java.util.Set;
 
 public class ClothesListActivity extends AppCompatActivity implements View.OnClickListener{
 
-    private Toolbar myToolbar;
-    private TextView addPictureButton;
-    private String ImageDecode;
-    private ImageView imageViewLoad;
     private final static int IMG_RESULT = 1024;
     protected static final int REQUEST_READ_EXTERNAL_STORAGE = 138;
     private ArrayList<Uri> adapterList;
     private MyListViewAdapter mListÁdapter;
     private ArrayList<String> UriList;
-    private TextView returnButton;
     private Clothing.TempStatus tempKey;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,22 +38,21 @@ public class ClothesListActivity extends AppCompatActivity implements View.OnCli
         setContentView(R.layout.activity_clothes_list);
 
         tempKey = (Clothing.TempStatus) getIntent().getSerializableExtra("tempKey");
-        myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
-        imageViewLoad = (ImageView)findViewById(R.id.imageViewLoad);
-        addPictureButton = (TextView) findViewById(R.id.add_picture_button);
+        TextView addPictureButton = (TextView) findViewById(R.id.add_picture_button);
         addPictureButton.setOnClickListener(this);
-        returnButton = (TextView)findViewById(R.id.return_button);
+        TextView returnButton = (TextView) findViewById(R.id.return_button);
         returnButton.setOnClickListener(this);
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         Set<String> oldDataSet  = preferences.getStringSet(tempKey.getName(),null);
         if(oldDataSet != null){
-            UriList = new ArrayList<String>(oldDataSet);
+            UriList = new ArrayList<>(oldDataSet);
             adapterList = changeStringListToUri(UriList);
         }else {
-            UriList = new ArrayList<String>();
-            adapterList = new ArrayList<Uri>();
+            UriList = new ArrayList<>();
+            adapterList = new ArrayList<>();
         }
         ListView myListView = (ListView) findViewById(R.id.picture_list_view);
         myListView.setEmptyView(findViewById(R.id.empty));
@@ -139,7 +133,7 @@ public class ClothesListActivity extends AppCompatActivity implements View.OnCli
     }
 
     private ArrayList<Uri> changeStringListToUri(ArrayList<String> mUriList){
-        ArrayList<Uri> list = new ArrayList<Uri>();
+        ArrayList<Uri> list = new ArrayList<>();
         for (String s: mUriList) {
             Uri myUri = Uri.parse(s);
             list.add(myUri);
@@ -148,7 +142,7 @@ public class ClothesListActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void saveDataListInSharedPreferences(ArrayList<String> newList){
-        Set<String> myset = new HashSet<String>(newList);
+        Set<String> myset = new HashSet<>(newList);
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putStringSet(tempKey.getName(),myset);
@@ -164,13 +158,13 @@ public class ClothesListActivity extends AppCompatActivity implements View.OnCli
 
 
     private class MyListViewAdapter extends ArrayAdapter<Uri> {
-        public MyListViewAdapter(Context context, int resourceId, ArrayList<Uri> adapterList) {
+        MyListViewAdapter(Context context, int resourceId, ArrayList<Uri> adapterList) {
             super(context, resourceId, adapterList);
         }
 
         @NonNull
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
             View baseview = convertView;
 
             if(baseview == null) {
