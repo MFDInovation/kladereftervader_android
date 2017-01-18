@@ -25,7 +25,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".ClothesListActivity" />
-        <activity android:name=".DemoActivity"></activity>
     </application>
 
 </manifest>
