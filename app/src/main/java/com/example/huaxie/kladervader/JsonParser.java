@@ -28,7 +28,7 @@ class JsonParser {
         this.originalObj = originalObj;
     }
 
-    Weather getWeather(){
+    Weather getWeather() throws JSONException, ParseException {
         getValidDateTime();
         double maxRainfall = -Double.MAX_VALUE;
         double minTemperature = Double.MAX_VALUE;
@@ -41,16 +41,16 @@ class JsonParser {
         double windSpeed;
         WeatherSymbol weatherSymbol;
         Weather weather = new Weather();
-        try {
+        //try {
             timeSeries = originalObj.getJSONArray("timeSeries");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        //} catch (JSONException e) {
+        //    e.printStackTrace();
+        //}
         SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'",Locale.US);
         for(int i = 0; i< timeSeries.length(); i++){
-            try {
+//            try {
                 JSONObject elementInTimeSeries = timeSeries.getJSONObject(i);
-                try {
+//                try {
                     Date compareDate= dateformat.parse(elementInTimeSeries.getString("validTime"));
                     if(compareDate.after(startDate) && compareDate.before(endDate)){
 //                        Log.d(TAG, "getWeather: "+ dateformat.format(compareDate));
@@ -91,12 +91,12 @@ class JsonParser {
                             }
                         }
                     }
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+                //} catch (ParseException e) {
+                //    e.printStackTrace();
+                //}
+            //} catch (JSONException e) {
+            //    e.printStackTrace();
+            //}
         }
         weather.temperature= minTemperature;
         weather.rainfall = maxRainfall;

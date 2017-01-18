@@ -1,6 +1,7 @@
 package com.example.huaxie.kladervader;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -14,6 +15,7 @@ import android.support.annotation.NonNull;
 import android.support.percent.PercentRelativeLayout;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -27,6 +29,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -115,9 +118,24 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         mCurrentWeather = null;
         final Networking newNetworking = new Networking(new Networking.AsyncResponse(){
             @Override
-            public void processFinish(final Weather weather, String error) {
-                if(error != null){
-                    showError(networkError);
+            public void processFinish(final Weather weather, final Exception exception) {
+                if (exception != null) {
+                    Toast.makeText(MainActivity.this, exception.getMessage(), Toast.LENGTH_LONG).show();
+                    new AlertDialog.Builder(MainActivity.this).setTitle("Error (please take screenshot)").setMessage(exception.getMessage())
+                            .setPositiveButton("Close", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                }
+                            }).show();
+                    if(exception instanceof IOException){
+                        MainActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                showError(networkError);
+                            }
+                        });
+                    }
                 }
                 mCurrentWeather = weather;
                 runOnUiThread(new Runnable() {

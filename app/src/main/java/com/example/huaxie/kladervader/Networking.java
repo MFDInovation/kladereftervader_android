@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.ParseException;
 
 /**
  * Created by huaxie on 2017-01-02.
@@ -19,12 +20,12 @@ import java.net.URL;
 class Networking extends AsyncTask< String, String, Weather > {
 
     private final static String TAG = "Networking";
-    private String error = null;
+    private Exception exception = null;
 
-    private static final String errorMessage = "error";
+    private static final String errorMessage = "exception";
 
     interface AsyncResponse {
-        void processFinish(Weather weather, String error);
+        void processFinish(Weather weather, Exception exception);
     }
 
     private AsyncResponse delegate = null;
@@ -59,20 +60,18 @@ class Networking extends AsyncTask< String, String, Weather > {
             String dataBuffer = buffer.toString();
             return parseWeather(getJsonObject(dataBuffer));
 
-        } catch (IOException e) {
-            error = errorMessage;
-            e.printStackTrace();
+        } catch (IOException | ParseException | JSONException e) {
+            exception = e;
         } finally {
             if (connection != null) {
                 connection.disconnect();
             }
-            try {
-                if (reader != null) {
+            if (reader != null) {
+                try {
                     reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            } catch (IOException e) {
-                error = errorMessage;
-                e.printStackTrace();
             }
         }
         return null;
@@ -88,7 +87,7 @@ class Networking extends AsyncTask< String, String, Weather > {
         return obj;
     }
 
-    private Weather parseWeather(JSONObject dataBufferObj) {
+    private Weather parseWeather(JSONObject dataBufferObj) throws JSONException, ParseException {
         JsonParser jsParser = new JsonParser(dataBufferObj);
         //Log.d(TAG, "getWeather: " + jsParser.getWeather().toString());
         return jsParser.getWeather();
@@ -96,7 +95,7 @@ class Networking extends AsyncTask< String, String, Weather > {
 
     @Override
     protected void onPostExecute(Weather weather) {
-        delegate.processFinish(weather,error);
+        delegate.processFinish(weather, exception);
     }
 }
 
