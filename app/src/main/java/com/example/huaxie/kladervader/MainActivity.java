@@ -469,22 +469,22 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 fakeWeather= new Weather(WeatherSymbol.WeatherStatus.ClearSky,3.0,0,0); //spring
                 break;
             case 2:
-                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Lightsleet, 1.0,0.9,6); //spring rain and snow
+                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Lightsleet, 1.0,0.5,4); //spring rain and snow
                 break;
             case 3:
-                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Lightsleet, 2.0,0.75,8); //spring rain and snow
+                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Sleet, -1,0.75,8); //spring rain and snow
                 break;
             case 4:
                 fakeWeather = new Weather(WeatherSymbol.WeatherStatus.ClearSky, 25.0,0.0,0.0); //summer
                 break;
             case 5:
-                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Thunder,20.0,0.75,6); //summer Thunder and rain
+                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Thunder,20.0,0.75,7); //summer Thunder and rain
                 break;
             case 6:
                 fakeWeather = new Weather(WeatherSymbol.WeatherStatus.ClearSky, 14.0, 0,0); // autumn
                 break;
             case 7:
-                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Rain,10.0, 0.4, 10); //autumn rain
+                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Rain,10.0, 0.4, 4); //autumn rain
                 break;
             case 8:
                 fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Snowshowers, -9, 0.75, 8); //winter
