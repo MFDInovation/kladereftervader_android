@@ -1,6 +1,7 @@
 package com.example.huaxie.kladervader;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,6 +15,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
+import java.util.Locale;
 
 /**
  * Created by huaxie on 2017-01-02.
@@ -42,8 +44,9 @@ class Networking extends AsyncTask< String, String, Weather > {
         BufferedReader reader = null;
 
         try {
-            String longitude = String.format("%.3f",GPS.getlongitude());
-            String latitude = String.format("%.3f",GPS.getlatitude());
+            String longitude = String.format(Locale.US,"%.3f",GPS.getlongitude());
+            String latitude = String.format(Locale.US,"%.3f",GPS.getlatitude());
+            Log.d(TAG, "doInBackground: " + longitude);
             URL weatherInfoURL = new URL(String.format("http://opendata-download-metfcst.smhi.se/api/category/pmp2g/version/2/geotype/point/lon/%s/lat/%s/data.json",
                     longitude, latitude));
             connection = (HttpURLConnection) weatherInfoURL.openConnection();

@@ -437,11 +437,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
         mWindowHeight = displaymetrics.heightPixels;
         mWindowWidth = displaymetrics.widthPixels;
-//        int testSymbolvalue = 13;
-//        int testTemp = 10;
-//        double testwind = 5;
-//        double testrain = 0.5;
-//        Weather weather = new Weather(testSymbolvalue,testTemp,testrain,testwind);
         WeatherAnimation.setAnimationInterval(this,mCurrentWeather);
     }
 
