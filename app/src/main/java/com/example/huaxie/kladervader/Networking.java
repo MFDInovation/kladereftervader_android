@@ -9,8 +9,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 
 /**
@@ -48,8 +50,8 @@ class Networking extends AsyncTask< String, String, Weather > {
             connection.connect();
 
             InputStream stream = connection.getInputStream();
-
-            reader = new BufferedReader(new InputStreamReader(stream));
+            Reader inputStreamReader = new InputStreamReader(stream, StandardCharsets.UTF_8);
+            reader = new BufferedReader(inputStreamReader);
 
             StringBuilder buffer = new StringBuilder();
             String line;

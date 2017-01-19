@@ -41,62 +41,44 @@ class JsonParser {
         double windSpeed;
         WeatherSymbol weatherSymbol;
         Weather weather = new Weather();
-        //try {
-            timeSeries = originalObj.getJSONArray("timeSeries");
-        //} catch (JSONException e) {
-        //    e.printStackTrace();
-        //}
+        timeSeries = originalObj.getJSONArray("timeSeries");
         SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'",Locale.US);
         for(int i = 0; i< timeSeries.length(); i++){
-//            try {
-                JSONObject elementInTimeSeries = timeSeries.getJSONObject(i);
-//                try {
-                    Date compareDate= dateformat.parse(elementInTimeSeries.getString("validTime"));
-                    if(compareDate.after(startDate) && compareDate.before(endDate)){
-//                        Log.d(TAG, "getWeather: "+ dateformat.format(compareDate));
-                        JSONArray parameter = elementInTimeSeries.getJSONArray("parameters");
-                        for(int j = 0; j< parameter.length(); j++){
-                            JSONObject elementInParameter = parameter.getJSONObject(j);
-                            String name = elementInParameter.getString("name");
-                            switch (name) {
-                                case "t":
-                                    temperature = elementInParameter.getJSONArray("values").getDouble(0);
-                                    minTemperature = Math.min(minTemperature, temperature);
-//                                Log.d(TAG, "getWeather: t" + temperature);
-//                        Log.d(TAG, "getParameters: "+ elementInParameter.getJSONArray("values").getDouble(0));
-                                    break;
-                                case "pmax":
-                                    rainfall = elementInParameter.getJSONArray("values").getDouble(0);
-//                                Log.d(TAG, "getWeather: rainfall" + rainfall);
-                                    maxRainfall = Math.max(maxRainfall, rainfall);
-                                    break;
-                                case "Wsymb":
-                                    symbol = elementInParameter.getJSONArray("values").getInt(0);
-//                                Log.d(TAG, "getWeather: symbol" + symbol);
-                                    weatherSymbol = new WeatherSymbol(symbol);
-                                    int currentSymbolPriority = weatherSymbol.getmSymbolPriority();
-                                    if (currentSymbolPriority > worstSymbolPriority) {
-                                        worstSymbolPriority = currentSymbolPriority;
-                                        worstSymbol = symbol;
-                                        Log.d(TAG, "getWeather: priority" + weatherSymbol.getmSymbolPriority());
-                                    }
-                                    break;
-                                case "ws":
-                                    windSpeed = elementInParameter.getJSONArray("values").getDouble(0);
-//                                Log.d(TAG, "getWeather: " + windSpeed);
-                                    maxWindSpeed = Math.max(maxWindSpeed, windSpeed);
-                                    break;
-                                default:
-                                    break;
+        JSONObject elementInTimeSeries = timeSeries.getJSONObject(i);
+            Date compareDate= dateformat.parse(elementInTimeSeries.getString("validTime"));
+            if(compareDate.after(startDate) && compareDate.before(endDate)){
+                JSONArray parameter = elementInTimeSeries.getJSONArray("parameters");
+                for(int j = 0; j< parameter.length(); j++){
+                    JSONObject elementInParameter = parameter.getJSONObject(j);
+                    String name = elementInParameter.getString("name");
+                    switch (name) {
+                        case "t":
+                            temperature = elementInParameter.getJSONArray("values").getDouble(0);
+                            minTemperature = Math.min(minTemperature, temperature);
+                            break;
+                        case "pmax":
+                            rainfall = elementInParameter.getJSONArray("values").getDouble(0);
+                            maxRainfall = Math.max(maxRainfall, rainfall);
+                            break;
+                        case "Wsymb":
+                            symbol = elementInParameter.getJSONArray("values").getInt(0);
+                            weatherSymbol = new WeatherSymbol(symbol);
+                            int currentSymbolPriority = weatherSymbol.getmSymbolPriority();
+                            if (currentSymbolPriority > worstSymbolPriority) {
+                                worstSymbolPriority = currentSymbolPriority;
+                                worstSymbol = symbol;
+                                Log.d(TAG, "getWeather: priority" + weatherSymbol.getmSymbolPriority());
                             }
-                        }
+                            break;
+                        case "ws":
+                            windSpeed = elementInParameter.getJSONArray("values").getDouble(0);
+                            maxWindSpeed = Math.max(maxWindSpeed, windSpeed);
+                            break;
+                        default:
+                            break;
                     }
-                //} catch (ParseException e) {
-                //    e.printStackTrace();
-                //}
-            //} catch (JSONException e) {
-            //    e.printStackTrace();
-            //}
+                }
+            }
         }
         weather.temperature= minTemperature;
         weather.rainfall = maxRainfall;
@@ -112,11 +94,9 @@ class JsonParser {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.MILLISECOND,-offSet);
         startDate = calendar.getTime();
-
         calendar.add(Calendar.HOUR, 8);
         endDate = calendar.getTime();
-
-        Log.d(TAG, "getValidDateTime: starttime" + startDate + "endDate " + endDate);
+//        Log.d(TAG, "getValidDateTime: starttime" + startDate + "endDate " + endDate);
     }
 
 }

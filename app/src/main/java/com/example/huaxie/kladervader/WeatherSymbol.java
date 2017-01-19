@@ -118,6 +118,8 @@ class WeatherSymbol {
             case Sleet:
                 mSymbolPriority = 15;
                 break;
+            default:
+                break;
         }
         return mSymbolPriority;
     }
