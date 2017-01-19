@@ -72,26 +72,18 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         tempContainer = (RelativeLayout)findViewById(R.id.temp_container);
         progressBar = (ProgressBar)findViewById(R.id.progress_bar);
         portrait = (ImageView)findViewById(R.id.portrait_container);
+
         TextView egnaBilderButton = (TextView) findViewById(R.id.egna_bilder_button);
-        mViewPager = (ViewPager) findViewById(R.id.myViewPager);
+        egnaBilderButton.setOnClickListener(this);
         TextView mDemoButton = (TextView) findViewById(R.id.demo_button);
         mDemoButton.setOnClickListener(this);
         TextView utvaderaButton = (TextView)findViewById(R.id.evaluation_button);
         utvaderaButton.setOnClickListener(this);
 
+        mViewPager = (ViewPager) findViewById(R.id.myViewPager);
         progressBar.setVisibility(View.VISIBLE);
-
-//        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-//        Set<String> oldDataSet  = preferences.getStringSet("UriSet",null);
-//        if(oldDataSet != null){
-//            mUriList = new ArrayList<String>(oldDataSet);
-//            updateViewPager();
-//        }else {
-//            mUriList = new ArrayList<String>();
-//        }
-
         mgps = new GPS(this,hasLocationListener);
-        egnaBilderButton.setOnClickListener(this);
+
     }
 
 

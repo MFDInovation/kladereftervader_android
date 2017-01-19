@@ -3,10 +3,13 @@ package com.example.huaxie.kladervader;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -31,6 +34,11 @@ abstract class PermissionUtil {
 
     static boolean checkPermission(AppCompatActivity activity, final String whatPermission){
         Log.d(TAG, "checkPermission: ing");
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            Log.w(TAG, "hasPermissions: API version < M, returning true by default");
+            return true;
+        }
+
         if (ContextCompat.checkSelfPermission(activity, whatPermission)
                 != PackageManager.PERMISSION_GRANTED) {
 
@@ -131,6 +139,7 @@ abstract class PermissionUtil {
             builder.show();
         }
     }
+
 }
 
 
