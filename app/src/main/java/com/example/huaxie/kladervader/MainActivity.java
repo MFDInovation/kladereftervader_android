@@ -115,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     protected void onStop() {
         Log.d(TAG, "onStop: ");
         mgps.stop();
+        mgps = null;
         super.onStop();
     }
 
