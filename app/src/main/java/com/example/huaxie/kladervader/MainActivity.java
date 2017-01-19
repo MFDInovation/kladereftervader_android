@@ -98,16 +98,17 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         if(mgps == null){
             mgps = new GPS(this,hasLocationListener);
         }
-        super.onResume();
-        if(demoWeather!= null){
-            startAnimation(demoWeather);
+        if(mCurrentWeather != null){
+            startAnimation(mCurrentWeather);
         }
+        super.onResume();
     }
     
 
     @Override
     protected void onPause() {
         Log.d(TAG, "onPause: ");
+        stopAnimation();
         super.onPause();
     }
 
