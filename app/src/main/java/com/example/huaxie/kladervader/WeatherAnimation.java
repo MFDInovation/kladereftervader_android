@@ -3,6 +3,7 @@ package com.example.huaxie.kladervader;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
@@ -23,51 +24,63 @@ import java.util.Random;
 
 class WeatherAnimation {
 
-    private final static String TAG = "Animation";
+    private final static String TAG = "WeatherAnimation";
     private final static int small = 50;
     private final static int medium = 100;
     final static int large = 150;
     private final static int xlarge = 200;
     private final static int longDuration = 6000;
-    private final static int shortDuration = 400;
-    private final static int windScale = 100;
+    private final static int shortDuration = 2000;
+    private final static int windScale = 200;
     private static final int smallImageHeight = 27;
     private static final int longImageHeight = 137;
     public static final Random random = new Random();
 
-    static void snowAnimation(int windSpeed, AppCompatActivity activity,
+    static void snowAnimation(double windSpeed, AppCompatActivity activity,
                               RelativeLayout fatherContainer, int height, int width, Bitmap image){
         int snowDuration = longDuration;
         int snowHeight = smallImageHeight + random.nextInt(smallImageHeight);
+        int scaledWindSpeed = (int)windSpeed*width/4;
 
-        ImageView animationItem = createRandomImage(activity,fatherContainer,height,width,image,snowHeight);
-        doWeatherAnimation(activity, animationItem, fatherContainer,windSpeed,snowDuration);
+        ImageView animationItem = createRandomImage(scaledWindSpeed,activity,fatherContainer,height,width,image,snowHeight);
+        doWeatherAnimation(activity, animationItem, fatherContainer,scaledWindSpeed,snowDuration);
     }
 
-    static void rainAnimation(int windSpeed, AppCompatActivity activity,
+    static void rainAnimation(double windSpeed, AppCompatActivity activity,
                               RelativeLayout fatherContainer, int height, int width, Bitmap image){
         int rainDuration = shortDuration;
-        int rainHeight = longImageHeight + random.nextInt(longImageHeight);
-        ImageView animationItem = createRandomImage(activity,fatherContainer,height,width,image,rainHeight);
-        doWeatherAnimation(activity,animationItem,fatherContainer,windSpeed,rainDuration);
+        Log.d(TAG, "rainAnimation: " + windSpeed);
+        int rainHeight = longImageHeight - random.nextInt(longImageHeight/10);
+        int scaledWindSpeed = (int)windSpeed*width/2;
+        ImageView animationItem = createRandomImage(scaledWindSpeed,activity,fatherContainer,height,width,image,rainHeight);
+        doWeatherAnimation(activity,animationItem,fatherContainer,scaledWindSpeed,rainDuration);
     }
 
     static void thunderAnimation(AppCompatActivity activity,
                                  RelativeLayout fatherContainer, int height, int width, Bitmap image){
-        ImageView animationItem = createRandomImage(activity,fatherContainer,height,width,image,0);
+        ImageView animationItem = createRandomImage(0,activity,fatherContainer,height,width,image,0);
         doThunderAnimation(animationItem,activity,fatherContainer);
     }
 
 
-    private static ImageView createRandomImage(AppCompatActivity activity,
+    private static ImageView createRandomImage(int windSpeed,AppCompatActivity activity,
                                                RelativeLayout fatherContainer, int height, int width, Bitmap image, int randomHeight){
         int randomStartpoint = random.nextInt(width);
         ImageView animationItem= new ImageView(activity);
         RelativeLayout.LayoutParams params;
+//        if(windSpeed != 0){
+//            float degree = (float) Math.toDegrees(Math.atan(windSpeed/height));
+//            Matrix matrix = new Matrix();
+//            animationItem.setScaleType(ImageView.ScaleType.MATRIX);
+//            matrix.postRotate(degree, image.getWidth() / 2, image.getHeight() / 2);
+//            animationItem.setImageMatrix(matrix);
+//            animationItem.animate().rotation(degree).start();
+//            animationItem.setRotation(degree);
+//        }
         if(randomHeight == 0 ){
             params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         }else {
-            params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,randomHeight);
+            params = new RelativeLayout.LayoutParams(randomHeight,randomHeight);
         }
         params.setMarginStart(randomStartpoint);
         animationItem.setLayoutParams(params);
@@ -115,13 +128,12 @@ class WeatherAnimation {
                                            final RelativeLayout fatherContainer, int windSpeed, int duration){
         float moveX = windSpeed != 0 ? random.nextInt(windSpeed) : 0;
         float endX =  animationItem.getX()- moveX;
-        /*float px = animationItem.getPivotX();
-        float py = animationItem.getPivotY();
-        float degree = (float) Math.asin(moveX/(animationItem.getHeight()/2.0))*360;
-        Matrix matrix = new Matrix();
-        animationItem.setScaleType(ImageView.ScaleType.MATRIX);   //required
-        matrix.postRotate((float) degree, px, py);
-        animationItem.setImageMatrix(matrix);*/
+        float moveY = fatherContainer.getHeight();
+        float degree = (float) Math.toDegrees(Math.atan(moveX/moveY));
+        animationItem.setRotation(degree);
+//        float moveY = fatherContainer.getHeight();
+//        float degree = (float) Math.atan2(moveX,moveY)*360;
+//        animationItem.setRotationX(degree);
 
         TranslateAnimation newAnimation = new TranslateAnimation(animationItem.getX(),endX,0,fatherContainer.getBottom());
         newAnimation.setDuration(duration);
@@ -168,7 +180,7 @@ class WeatherAnimation {
                 break;
             case Sleet:
             case Lightsleet:
-                sendSleetMessage(activity, weather, rainbundle, snowbundle, rainfall,medium,small);
+                sendSleetMessage(activity, weather, rainbundle, snowbundle, rainfall,small,small);
                 break;
             case Thunder:
             case Thunderstorm:
@@ -187,73 +199,75 @@ class WeatherAnimation {
 
     private static void sendThunderMessage(MainActivity activity) {
         int interval;
-        int windSpeed;
+        double windSpeed;
         interval = random.nextInt(2000) + 2000;
         windSpeed = 0;
         Bundle thunderBundle = new Bundle();
         thunderBundle.putString("status","thunder");
         thunderBundle.putInt("interval",interval);
-        thunderBundle.putInt("windspeed", windSpeed);
+        thunderBundle.putDouble("windspeed", windSpeed);
         thunderBundle.putParcelable("picture",getBitmap(activity,R.mipmap.lightning));
         Message thunderMsg = new Message();
         thunderMsg.setData(thunderBundle);
         activity.getHandler().sendMessage(thunderMsg);
     }
 
-    private static void sendSleetMessage(MainActivity activity, Weather weather, Bundle rainbundle, Bundle snowbundle, double rainfall, int medium, int small) {
+    private static void sendSleetMessage(MainActivity activity, Weather weather, Bundle rainbundle, Bundle snowbundle, double rainfall, int snowIntensity, int rainIntensity) {
         int intensity;
         int interval;
-        int windSpeed;
-        intensity = (int)(Math.round(Math.min(rainfall*medium/10, medium))+medium);
+        double windSpeed;
+        intensity = Math.min(snowIntensity,(int)(rainfall*snowIntensity));
+        Log.d(TAG, "sendSleetMessage: intensity" + intensity);
         interval = longDuration/intensity;
-        windSpeed = (int)Math.round(weather.windSpeed)*windScale;
+        windSpeed = weather.windSpeed;
         snowbundle.putString("status","snow");
         snowbundle.putInt("interval",interval);
-        snowbundle.putInt("windspeed", windSpeed);
+        snowbundle.putDouble("windspeed", windSpeed);
         snowbundle.putParcelable("picture",getBitmap(activity,R.mipmap.snow));
         Message msg1 = new Message();
         msg1.setData(snowbundle);
         activity.getHandler().sendMessage(msg1);
 
-        intensity = (int)(Math.round(Math.min(rainfall*small/10, small))+small);
+        intensity = Math.min(rainIntensity,(int)(rainfall*rainIntensity));
         interval = shortDuration/intensity;
-        windSpeed = (int)Math.round(Math.min(weather.windSpeed/3,2));
+        windSpeed = weather.windSpeed;
         rainbundle.putString("status","rain");
         rainbundle.putInt("interval",interval);
-        rainbundle.putInt("windspeed", windSpeed);
+        rainbundle.putDouble("windspeed", windSpeed);
         rainbundle.putParcelable("picture",getBitmap(activity,R.mipmap.rain));
         Message msg2 = new Message();
         msg2.setData(rainbundle);
         activity.getHandler().sendMessage(msg2);
     }
 
-    private static void sendRainMessage(MainActivity activity, Weather weather, Bundle rainbundle, double rainfall,int medium) {
+    private static void sendRainMessage(MainActivity activity, Weather weather, Bundle rainbundle, double rainfall,int rainIntensity) {
         int intensity;
         int interval;
-        int windSpeed;
-        intensity = (int)(Math.round(Math.min(rainfall*medium/10, medium)) + medium);
+        double windSpeed;
+        intensity = Math.min(rainIntensity,(int)(rainfall*rainIntensity/10));
         interval = shortDuration/intensity;
-        windSpeed = (int)Math.round(weather.windSpeed)*windScale;
+        windSpeed = weather.windSpeed;
         rainbundle.putString("status","rain");
         rainbundle.putInt("interval",interval);
-        rainbundle.putInt("windspeed", windSpeed);
+        rainbundle.putDouble("windspeed", windSpeed);
         rainbundle.putParcelable("picture",getBitmap(activity,R.mipmap.rain));
         Message rainmsg = new Message();
         rainmsg.setData(rainbundle);
+        Log.d(TAG, "sendRainMessage: " + windSpeed);
         activity.getHandler().sendMessage(rainmsg);
     }
 
-    private static void sendSnowMessage(MainActivity activity, Weather weather, Bundle snowbundle, double rainfall, int xlarge) {
+    private static void sendSnowMessage(MainActivity activity, Weather weather, Bundle snowbundle, double rainfall, int snowIntensity) {
         int intensity;
         int interval;
-        int windSpeed;
-        intensity = (int)(Math.round(Math.min(rainfall*xlarge/10, xlarge))+xlarge);
+        double windSpeed;
+        intensity = Math.min(snowIntensity,(int)(rainfall*snowIntensity/10));
         interval = longDuration/intensity;
         Log.d(TAG, "sendSnowMessage: interval " + interval);
-        windSpeed = (int)Math.round(weather.windSpeed)*windScale;
+        windSpeed = weather.windSpeed;
         snowbundle.putString("status","snow");
         snowbundle.putInt("interval",interval);
-        snowbundle.putInt("windspeed", windSpeed);
+        snowbundle.putDouble("windspeed", windSpeed);
         snowbundle.putParcelable("picture",getBitmap(activity,R.mipmap.snow));
         Message snowmsg = new Message();
         snowmsg.setData(snowbundle);

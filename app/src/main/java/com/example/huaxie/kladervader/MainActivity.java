@@ -404,7 +404,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             Bundle bundle = msg.getData();
             String status = bundle.getString("status");
             final int interval = bundle.getInt("interval");
-            final int windspeed = bundle.getInt("windspeed");
+            final double windspeed = bundle.getDouble("windspeed");
             final Bitmap picture = bundle.getParcelable("picture");
             assert status != null;
             if(java.util.Objects.equals(status, "snow")){
@@ -418,7 +418,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 });
 
             }else if ("rain".equals(status)){
-                Log.d(TAG, "handleMessage: rain");
+                Log.d(TAG, "handleMessage: rain" + windspeed);
                 mHandler.post( new Runnable() {
                     @Override
                     public void run() {
@@ -469,10 +469,10 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 fakeWeather= new Weather(WeatherSymbol.WeatherStatus.ClearSky,3.0,0,0); //spring
                 break;
             case 2:
-                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Lightsleet, 1.0,0.75,5); //spring rain and snow
+                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Lightsleet, 1.0,0.9,6); //spring rain and snow
                 break;
             case 3:
-                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Lightsleet, 2.0,0.5,7); //spring rain and snow
+                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Lightsleet, 2.0,0.75,8); //spring rain and snow
                 break;
             case 4:
                 fakeWeather = new Weather(WeatherSymbol.WeatherStatus.ClearSky, 25.0,0.0,0.0); //summer
@@ -484,7 +484,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 fakeWeather = new Weather(WeatherSymbol.WeatherStatus.ClearSky, 14.0, 0,0); // autumn
                 break;
             case 7:
-                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Rain,10.0, 0.6, 0); //autumn rain
+                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Rain,10.0, 0.4, 10); //autumn rain
                 break;
             case 8:
                 fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Snowshowers, -9, 0.75, 8); //winter
