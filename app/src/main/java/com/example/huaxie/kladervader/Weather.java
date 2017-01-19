@@ -12,11 +12,15 @@ class Weather {
     double windSpeed;
     WeatherSymbol.WeatherStatus weatherSymbol;
 
+    Weather(){
+        this.symbol = 0;
+        this.temperature = -Double.MAX_VALUE;
+        this.rainfall = 0;
+        this.windSpeed = 0;
+        this.weatherSymbol = null;
+    }
 
-
-    Weather(){ new Weather(0,0,0,0);}
-
-    private Weather(int symbol, double temperature, double rainfall, double windSpeed){
+    Weather(int symbol, double temperature, double rainfall, double windSpeed){
         this.symbol = symbol;
         this.temperature = temperature;
         this.rainfall = rainfall;

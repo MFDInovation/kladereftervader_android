@@ -113,7 +113,7 @@ class WeatherAnimation {
 
     private static void doWeatherAnimation(final AppCompatActivity activity, final ImageView animationItem,
                                            final RelativeLayout fatherContainer, int windSpeed, int duration){
-        float moveX = random.nextInt(windSpeed);
+        float moveX = windSpeed != 0 ? random.nextInt(windSpeed) : 0;
         float endX =  animationItem.getX()- moveX;
         /*float px = animationItem.getPivotX();
         float py = animationItem.getPivotY();
@@ -216,7 +216,7 @@ class WeatherAnimation {
         activity.getHandler().sendMessage(msg1);
 
         intensity = (int)(Math.round(Math.min(rainfall*small/10, small))+small);
-        interval = Math.round(shortDuration/intensity);
+        interval = shortDuration/intensity;
         windSpeed = (int)Math.round(Math.min(weather.windSpeed/3,2));
         rainbundle.putString("status","rain");
         rainbundle.putInt("interval",interval);

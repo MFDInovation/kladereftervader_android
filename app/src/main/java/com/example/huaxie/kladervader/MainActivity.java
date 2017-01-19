@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     private RelativeLayout animationContainer;
     private RelativeLayout tempContainer;
     private GPS mgps;
-    private Weather mCurrentWeather;
+    private Weather mCurrentWeather = null;
     private ProgressBar progressBar;
     private ImageView portrait;
     private ArrayList<String> mUriList;

@@ -129,6 +129,8 @@ public class ClothesListActivity extends AppCompatActivity implements View.OnCli
                 mListÁdapter.clear();
                 finish();
                 break;
+            default:
+                break;
         }
     }
 
