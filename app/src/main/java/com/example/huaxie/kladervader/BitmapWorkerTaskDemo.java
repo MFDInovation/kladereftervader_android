@@ -26,7 +26,7 @@ class BitmapWorkerTaskDemo extends AsyncTask<Integer, Void, Bitmap> {
     @Override
     protected Bitmap doInBackground(Integer... integers) {
         BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inSampleSize = 2;
+        options.inSampleSize = 3;
         options.inJustDecodeBounds = false;
         return BitmapFactory.decodeResource(mContext.getResources(),integers[0],options);
     }

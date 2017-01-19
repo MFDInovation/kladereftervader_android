@@ -94,14 +94,26 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
     @Override
     protected void onResume() {
+        Log.d(TAG, "onResume: ");
+        if(mgps == null){
+            mgps = new GPS(this,hasLocationListener);
+        }
         super.onResume();
         if(demoWeather!= null){
             startAnimation(demoWeather);
         }
     }
+    
+
+    @Override
+    protected void onPause() {
+        Log.d(TAG, "onPause: ");
+        super.onPause();
+    }
 
     @Override
     protected void onStop() {
+        Log.d(TAG, "onStop: ");
         mgps.stop();
         super.onStop();
     }
@@ -130,6 +142,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                     }
                 }
                 mCurrentWeather = weather;
+                Log.d(TAG, "processFinish: " + weather);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
