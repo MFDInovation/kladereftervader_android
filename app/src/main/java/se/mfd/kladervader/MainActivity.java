@@ -376,7 +376,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         }
     }
 
-    private GPS.HasLocationListener hasLocationListener = new GPS.HasLocationListener() {
+    private se.mfd.kladervader.GPS.HasLocationListener hasLocationListener = new GPS.HasLocationListener() {
 
         @Override
         public void hasLocation(final double latitude, final double longitude) {
