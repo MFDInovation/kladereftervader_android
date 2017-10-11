@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.huaxie.kladervader">
+    package="se.mfd.kladervader">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -16,7 +16,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name="se.mfd.kladervader.MainActivity"
             android:launchMode="standard"
             android:screenOrientation="userPortrait"
             android:configChanges="keyboardHidden|orientation|screenSize">
@@ -26,7 +26,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ClothesListActivity"
+        <activity android:name="se.mfd.kladervader.ClothesListActivity"
             android:screenOrientation="userPortrait"
             android:configChanges="keyboardHidden|orientation|screenSize"/>
     </application>

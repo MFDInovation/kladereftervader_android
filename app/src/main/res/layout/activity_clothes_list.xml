@@ -5,7 +5,7 @@
     android:id="@+id/activity_clothes_list"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.huaxie.kladervader.ClothesListActivity"
+    tools:context="se.mfd.kladervader.ClothesListActivity"
     >
 
     <android.support.v7.widget.Toolbar

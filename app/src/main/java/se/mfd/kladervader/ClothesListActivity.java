@@ -1,4 +1,4 @@
-package com.example.huaxie.kladervader;
+package se.mfd.kladervader;
 
 /*
 This activity is used when a user wants to add or delete their own pictures corresponding to

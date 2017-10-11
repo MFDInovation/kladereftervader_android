@@ -1,4 +1,4 @@
-package com.example.huaxie.kladervader;
+package se.mfd.kladervader;
 
 /*
 This class represents the different clothing that are needed for different weather conditions and

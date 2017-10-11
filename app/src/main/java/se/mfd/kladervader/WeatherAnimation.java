@@ -1,9 +1,8 @@
-package com.example.huaxie.kladervader;
+package se.mfd.kladervader;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
@@ -19,7 +18,7 @@ import android.widget.RelativeLayout;
 import java.util.Random;
 
 /**
- * Created by huaxie on 2017-01-11.
+ * Created by dev on 2017-01-11.
  */
 
 class WeatherAnimation {

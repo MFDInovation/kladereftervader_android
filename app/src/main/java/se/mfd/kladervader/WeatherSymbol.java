@@ -1,7 +1,7 @@
-package com.example.huaxie.kladervader;
+package se.mfd.kladervader;
 
 /**
- * Created by huaxie on 2017-01-09.
+ * Created by dev on 2017-01-09.
  */
 
 class WeatherSymbol {

@@ -1,4 +1,4 @@
-package com.example.huaxie.kladervader;
+package se.mfd.kladervader;
 
 /**
  * Created by Chris Far on 2017-08-04.

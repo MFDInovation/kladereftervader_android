@@ -1,8 +1,8 @@
-package com.example.huaxie.kladervader;
+package se.mfd.kladervader;
 
 
 /**
- * Created by huaxie on 2017-01-03.
+ * Created by dev on 2017-01-03.
  */
 
 class Weather {

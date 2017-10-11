@@ -1,11 +1,11 @@
-package com.example.huaxie.kladervader;
+package se.mfd.kladervader;
 
 import android.util.Log;
 
 import java.util.Calendar;
 
 /**
- * Created by huaxie on 2017-01-09.
+ * Created by dev on 2017-01-09.
  */
 
 class WeatherImage {

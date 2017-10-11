@@ -1,4 +1,4 @@
-package com.example.huaxie.kladervader;
+package se.mfd.kladervader;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
@@ -7,7 +7,6 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.widget.ImageView;
 
 public class ZoomableImageView extends android.support.v7.widget.AppCompatImageView
 {

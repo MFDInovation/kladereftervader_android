@@ -1,15 +1,13 @@
-package com.example.huaxie.kladervader;
+package se.mfd.kladervader;
 
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -19,7 +17,7 @@ import android.util.Log;
 
 
 /**
- * Created by huaxie on 2017-01-04.
+ * Created by dev on 2017-01-04.
  */
 
 abstract class PermissionUtil {

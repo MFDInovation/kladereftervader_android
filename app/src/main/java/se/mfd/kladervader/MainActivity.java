@@ -1,4 +1,4 @@
-package com.example.huaxie.kladervader;
+package se.mfd.kladervader;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -376,7 +376,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         }
     }
 
-    private com.example.huaxie.kladervader.GPS.HasLocationListener hasLocationListener = new GPS.HasLocationListener() {
+    private GPS.HasLocationListener hasLocationListener = new GPS.HasLocationListener() {
 
         @Override
         public void hasLocation(final double latitude, final double longitude) {

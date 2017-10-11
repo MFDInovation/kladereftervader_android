@@ -1,4 +1,4 @@
-package com.example.huaxie.kladervader;
+package se.mfd.kladervader;
 
 import android.content.Context;
 import android.content.SharedPreferences;
