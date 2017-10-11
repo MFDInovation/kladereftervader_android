@@ -11,7 +11,7 @@ import java.lang.ref.WeakReference;
 
 
 /**
- * Created by huaxie on 2017-01-16.
+ * Used for loading images that are placed in the apps resources
  */
 
 class BitmapWorkerTaskDemo extends AsyncTask<Integer, Void, Bitmap> {

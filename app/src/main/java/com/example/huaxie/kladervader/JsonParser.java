@@ -14,7 +14,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 /**
- * Created by huaxie on 2017-01-03.
+ * Parses the response from SMHIs API
  */
 
 class JsonParser {

@@ -4,20 +4,22 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.widget.ImageView;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 
 /**
- * Created by huaxie on 2017-01-11.
+ * Loads images from smartphone storage based on a uri to a specific resource
  */
 
 class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
 
-    private static final int pix = 200;
+    private static final int pix = 350;
     private final WeakReference<ImageView> imageViewReference;
 
     BitmapWorkerTask(ImageView imageView) {
@@ -42,7 +44,7 @@ class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
         }
     }
 
-    static int calculateInSampleSize(
+    private static int calculateInSampleSize(
             BitmapFactory.Options options, int reqWidth, int reqHeight) {
         // Raw height and width of image
         final int height = options.outHeight;
@@ -81,6 +83,7 @@ class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
         return BitmapFactory.decodeFile(path, options);
     }
 
+    /*
     static String getPathFromImageUri(Uri selectedImage, Context mContext){
         String[] filePathColumn = { MediaStore.Images.Media.DATA };
         Cursor cursor = mContext.getContentResolver().query(selectedImage,filePathColumn, null, null, null);
@@ -89,8 +92,10 @@ class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
         int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
         String picturePath = cursor.getString(columnIndex);
         cursor.close();
+
         return picturePath;
-    }
+    } */
+
 
 }
 

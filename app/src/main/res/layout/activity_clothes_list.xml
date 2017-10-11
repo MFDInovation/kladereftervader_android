@@ -5,17 +5,18 @@
     android:id="@+id/activity_clothes_list"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.huaxie.kladervader.ClothesListActivity">
+    tools:context="com.example.huaxie.kladervader.ClothesListActivity"
+    >
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/my_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="85dp"
         android:background="?attr/colorPrimary"
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
         app:contentInsetLeft="0dp"
         app:contentInsetStart="0dp">
@@ -25,62 +26,79 @@
             android:layout_height="match_parent"
             android:layout_alignParentStart="true">
 
-            <TextView
-                android:text="@string/change_picture_for_weather"
-                android:textSize="18sp"
-                android:gravity="center"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_centerInParent="true" />
+            <Button
+                android:id="@+id/clothesHelpButton"
+                android:layout_width="60dp"
+                android:layout_height="75dp"
+                android:layout_centerInParent="true"
+                android:textColor="@color/white"
+                android:textSize="25sp"
+                android:textStyle="bold"
+                android:background="@drawable/custom_btn"
+                android:contentDescription="@string/help_button" />
 
-            <TextView
+            <Button
                 android:id="@+id/return_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="135dp"
+                android:layout_height="75dp"
                 android:layout_centerVertical="true"
                 android:gravity="center"
                 android:text="@string/finish"
-                android:textSize="15sp"
+                android:textSize="25sp"
                 android:padding="10dp"
-                android:layout_alignParentStart="true"
-                android:layout_marginLeft="5dp"
-                android:textColor="@color/colorPrimaryDark"/>
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="3dp"
+                android:background="@drawable/custom_btn"
+                android:textColor="@color/white"/>
 
-            <TextView
+            <Button
                 android:id="@+id/add_picture_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="135dp"
+                android:layout_height="75dp"
                 android:layout_centerVertical="true"
                 android:gravity="center"
                 android:text="@string/add_picture"
-                android:textSize="15sp"
+                android:textSize="25sp"
                 android:padding="10dp"
-                android:layout_marginEnd="5dp"
-                android:layout_alignParentEnd="true"
-                android:textColor="@color/colorPrimaryDark"/>
+                android:layout_marginStart="3dp"
+                android:layout_alignParentStart="true"
+                android:background="@drawable/custom_btn"
+                android:textColor="@color/white"/>
         </RelativeLayout>
     </android.support.v7.widget.Toolbar>
 
-    <ListView
-        android:id="@+id/picture_list_view"
-        android:layout_below="@+id/my_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-    <TextView
-        android:id="@+id/empty"
+    <android.support.v4.view.ViewPager
+        android:id="@+id/myViewPager"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:text="no picture choosed"
-        android:visibility="visible" />
+        android:importantForAccessibility="no"
+        >
+    </android.support.v4.view.ViewPager>
 
-    <ImageView
-        android:id="@+id/imageViewLoad"
-        android:layout_width="200dp"
-        android:layout_height="300dp"
-        android:layout_centerInParent="true"
-        android:visibility="gone"/>
+    <Button
+        android:id="@+id/clothesRightButton"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        android:textColor="@color/white"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        android:layout_marginEnd="3dp"
+        android:background="@drawable/custom_btn"
+        android:contentDescription="@string/right_button"/>
 
+    <Button
+        android:id="@+id/clothesLeftButton"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:textColor="@color/white"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        android:layout_marginStart="3dp"
+        android:background="@drawable/custom_btn"
+        android:contentDescription="@string/left_button"/>
 
 
 </RelativeLayout>

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">KladerVader</string>
+    <string name="app_name">Kläder efter väder</string>
     <string name="request_permission_location_title">Location permission request</string>
     <string name="request_permission_location_text">Please allow location permission</string>
     <string name="ok">ok</string>
@@ -13,10 +13,37 @@
     <string name="change_picture_for_weather">Byt bilder för detta väder</string>
 
     <string name="title">Title</string>
+    <string name="new_image">Egen Bild</string>
+    <string name="standard_image">Standard Bild</string>
     <string name="delete">Ta bort</string>
-    <string name="egna_bilder">Egna Bilder</string>
+    <string name="hantera_bilder">Hantera Bilder</string>
     <string name="demo">Demo</string>
-    <string name="utv_dera_appen">Utvädera appen</string>
+    <string name="help_button">Hjälp</string>
+    <string name="left_button">Gå till vänster</string>
+    <string name="right_button">Gå till höger</string>
 
+    <string name="clothing_title">Hantera bilder för: </string>
+
+    <string name="help_text_main">Välkommen till Kläder efter väder\n\nDen här appen hjälper dig att välja kläder som passar vädret där du befinner dig. Appen visar vädret för det kommande 8 timmarna. Om det till exempel kommer att regna en kort stund, då visar appen att du kan behöva regnkläder. Väderprognosen hämtas från väderlekstjänsten SMHI.
+
+\n\nDu kan också lägga till egna bilder på kläder. Tryck på knappen ”Hantera bilder” och lägg till bilder som du tagit själv.
+</string>
+
+    <string name="help_text_egnaBilder">Fota först dina kläder och välj sen här i appen vilken typ av väder bilderna passar till.\n\nBläddra till rätt typ av väder som kläderna passar till genom att klicka på pilknapparna. Tryck sen på knappen ”Lägg till” och välj en bild du fotat, så kommer denna bild visas i fortsättningen. Du kan också lägga till flera olika bilder till varje typ av väder.
+
+    </string>
+
+    <string name="mycketKallt">underställ, varma strumpor, täckbyxor, varm tröja, vinterkängor eller vinterstövlar, varm jacka, vintermössa, tjocka vantar, halsduk</string>
+    <string name="kallt">underställ, varma byxor, tröja, varma kängor, varm jacka, mössa, vantar, halsduk</string>
+    <string name="nollgradigtMinus">tröja, kängor, varm jacka, mössa, vantar, halsduk</string>
+    <string name="nollgradigtMinusRegn">tröja, kängor, varm jacka, mössa, vantar, halsduk</string>
+    <string name="nollgradigtPlus">tröja, kängor, varm jacka, mössa, vantar, halsduk</string>
+    <string name="nollgradigtPlusRegn">tröja, kängor, varm jacka, mössa, vantar, halsduk, paraply eller regnjacka</string>
+    <string name="kyligt">långbyxor, tröja, skor, jacka</string>
+    <string name="kyligtRegn">långbyxor, tröja, stövlar, regnkläder</string>
+    <string name="varmt">shorts, t-shirt, skor, extra tröja</string>
+    <string name="varmtRegn">shorts, t-shirt, skor eller stövlar, regnjacka</string>
+    <string name="hett">shorts, t-shirt, sandaler</string>
+    <string name="hettRegn">shorts, t-shirt, sandaler, regnjacka</string>
 
 </resources>

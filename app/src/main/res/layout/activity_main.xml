@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.huaxie.kladervader.MainActivity">
+    tools:context="com.example.huaxie.kladervader.MainActivity"
+    android:contentDescription="@string/app_name">
 
     <android.support.percent.PercentRelativeLayout
         android:id="@+id/base_container"
@@ -13,10 +13,10 @@
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true">
+
         <ImageView
             android:layout_width="match_parent"
             android:id="@+id/base_background"
-            android:scaleType="centerInside"
             android:adjustViewBounds="true" />
 
         <ProgressBar
@@ -24,90 +24,125 @@
             android:layout_centerInParent="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            android:importantForAccessibility="no"/>
 
-        <RelativeLayout
-            android:id="@+id/temp_container"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_alignParentTop="true">
 
             <TextView
                 android:id="@+id/temp"
                 android:layout_width="wrap_content"
-                android:layout_height="@dimen/temp_text_height"
-                android:textColor="@color/white"
+                android:layout_height="wrap_content"
+                android:textColor="#FF000000"
                 android:shadowColor="@color/text_shadow_white"
-                android:layout_centerVertical="true"
-                android:textSize="@dimen/temp_text_size"
+                android:textSize="75sp"
                 android:textAlignment="center"
-                android:shadowDx="2"
-                android:shadowDy="2"
+                android:shadowDx="1"
+                android:shadowDy="1"
                 android:shadowRadius="4"
-                android:layout_marginStart="@dimen/text_xxxxlarge_margin"/>
-
-            <TextView
-                style="@style/TextViewFont"
-                android:id="@+id/egna_bilder_button"
-                android:text="@string/egna_bilder"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentTop="true"
-                android:layout_marginTop="@dimen/text_xlarge_margin"
-                android:layout_marginEnd="@dimen/text_large_margin"/>
-
-            <TextView
-                android:id="@+id/demo_button"
-                style="@style/TextViewFont"
-                android:text = "@string/demo"
-                android:layout_below="@+id/egna_bilder_button"
-                android:layout_alignEnd="@+id/egna_bilder_button"
-                android:layout_marginTop="@dimen/text_small_margin"
-                android:layout_alignParentBottom="true"/>
-        </RelativeLayout>
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="7dp"
+                android:background="@drawable/text_box"
+                android:typeface="normal"/>
 
         <RelativeLayout
             android:id="@+id/animation_container"
             android:layout_height="match_parent"
-            android:layout_width="match_parent">
+            android:layout_width="match_parent"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:importantForAccessibility="no">
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:id="@+id/button_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="10dp">
+
+            <Button
+                android:id="@+id/egna_bilder_button"
+                android:layout_alignParentStart="true"
+                android:layout_width="wrap_content"
+                android:layout_height="60dp"
+                android:layout_marginStart="7dp"
+                android:textSize="25sp"
+                android:textColor="@color/white"
+                android:typeface="normal"
+                android:textStyle="bold"
+                android:textAlignment="center"
+                android:paddingStart="3dp"
+                android:paddingEnd="3dp"
+                android:background="@drawable/custom_btn"
+                android:contentDescription="@string/hantera_bilder"/>
+
+            <Button
+                android:id="@+id/helpButton"
+                android:layout_width="100dp"
+                android:layout_height="60dp"
+                android:layout_marginEnd="7dp"
+                android:layout_alignParentEnd="true"
+                android:textColor="@color/white"
+                android:textSize="25sp"
+                android:textStyle="bold"
+                android:textAlignment="center"
+                android:background="@drawable/custom_btn"
+                android:contentDescription="@string/help_button"/>
+
         </RelativeLayout>
 
         <RelativeLayout
             android:id="@+id/viewPager_container"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_below="@+id/temp_container"
-            android:layout_alignParentBottom="true">
+            android:layout_height="match_parent"
+            android:layout_above="@id/button_container"
+            android:layout_marginTop="48dp"
+            android:importantForAccessibility="no"
+            >
 
             <android.support.v4.view.ViewPager
                 android:id="@+id/myViewPager"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:visibility="gone"
+                android:importantForAccessibility="no"
                 >
 
             </android.support.v4.view.ViewPager>
 
-            <ImageView
-                android:id="@+id/portrait_container"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_alignParentTop="true"
-                android:layout_toEndOf="@+id/myViewPager"
-                android:visibility="gone"/>
-
-            <TextView
-                android:text="@string/utv_dera_appen"
-                style="@style/TextViewFont"
-                android:id="@+id/evaluation_button"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentStart="true"
-                android:layout_margin="@dimen/text_small_margin"/>
 
         </RelativeLayout>
 
+        <Button
+            android:id="@+id/mainRightButton"
+            android:layout_height="wrap_content"
+            android:layout_width="50dp"
+            android:layout_centerInParent="true"
+            android:layout_alignParentEnd="true"
+            android:textColor="@color/white"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            android:layout_marginEnd="3dp"
+            android:background="@drawable/custom_btn"
+            android:contentDescription="@string/right_button"/>
 
+        <Button
+            android:id="@+id/mainLeftButton"
+            android:layout_height="wrap_content"
+            android:layout_width="50dp"
+            android:layout_centerInParent="true"
+            android:layout_alignParentStart="true"
+            android:textColor="@color/white"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            android:layout_marginStart="3dp"
+            android:background="@drawable/custom_btn"
+            android:contentDescription="@string/left_button"/>
 
     </android.support.percent.PercentRelativeLayout>
+
+
 
 
 </RelativeLayout>

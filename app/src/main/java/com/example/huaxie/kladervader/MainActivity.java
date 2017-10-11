@@ -1,21 +1,25 @@
 package com.example.huaxie.kladervader;
 
+import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.percent.PercentRelativeLayout;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -23,17 +27,30 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Set;
 
-
+/*
+The main activity that is linked to the main window. Starts a GPS search and with
+the gathered data from the phones current location it will proceed to call on a networking task
+that makes a API call to SMHI. With the weather information fetched, it displays a picture
+based on the conditions for the next 8 hours. It has a help button and a button to start changing
+pictures that are displayed for different weathers.
+ */
 
 public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener,View.OnClickListener{
 
@@ -41,24 +58,20 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     private TextView mTemp;
     private ImageView baseBackground;
     private RelativeLayout animationContainer;
-    private RelativeLayout tempContainer;
     private GPS mgps;
     private Weather mCurrentWeather = null;
     private ProgressBar progressBar;
-    private ImageView portrait;
     private ArrayList<String> mUriList;
     private ViewPager mViewPager;
-    private int tempContainerHeight;
     private Clothing.TempStatus tempKey;
-    private int demoCounter = 0;
     private int mWindowHeight;
     private int mWindowWidth;
-    private Weather demoWeather = mCurrentWeather;
     protected static final int REQUEST_ACCESS_COURSE_LOCATION = 118;
     protected static final int ACTIVITY_RESULT_CODE = 1;
     public static final String gpsError = "gpsError";
     public static final String networkError = "networkError";
-    public static final int demoNumber = 9;
+    private Button b1,b2;
+    private String tempDesc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,23 +79,98 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         setContentView(R.layout.activity_main);
         mTemp = (TextView) findViewById(R.id.temp);
 
-        //layout update
+        DisplayMetrics dpMet =this.getResources().getDisplayMetrics();
+        int height = dpMet.heightPixels;
+
+        // Init the layout and the different elements in the view
         animationContainer = (RelativeLayout)findViewById(R.id.animation_container);
         baseBackground = (ImageView)findViewById(R.id.base_background);
-        tempContainer = (RelativeLayout)findViewById(R.id.temp_container);
         progressBar = (ProgressBar)findViewById(R.id.progress_bar);
-        portrait = (ImageView)findViewById(R.id.portrait_container);
+        b1 = (Button) findViewById(R.id.mainLeftButton);
+        b2 = (Button) findViewById(R.id.mainRightButton);
 
-        TextView egnaBilderButton = (TextView) findViewById(R.id.egna_bilder_button);
+        Button egnaBilderButton = (Button) findViewById(R.id.egna_bilder_button);
         egnaBilderButton.setOnClickListener(this);
-        TextView mDemoButton = (TextView) findViewById(R.id.demo_button);
-        mDemoButton.setOnClickListener(this);
-        TextView utvaderaButton = (TextView)findViewById(R.id.evaluation_button);
-        utvaderaButton.setOnClickListener(this);
+        egnaBilderButton.getBackground().setColorFilter(0xFF003399, PorterDuff.Mode.MULTIPLY);
+        egnaBilderButton.setText(R.string.hantera_bilder);
+        Button helpButton = (Button) findViewById(R.id.helpButton);
+        helpButton.setOnClickListener(this);
+        helpButton.setText("?");
+        helpButton.getBackground().setColorFilter(0xFF003399, PorterDuff.Mode.MULTIPLY);
+
+        if(height < 1000 && height > 500){
+            egnaBilderButton.setWidth(200);
+            helpButton.setWidth(50);
+        }
+        else if(height < 500){
+            egnaBilderButton.setWidth(100);
+            helpButton.setWidth(30);
+        }
 
         mViewPager = (ViewPager) findViewById(R.id.myViewPager);
         progressBar.setVisibility(View.VISIBLE);
         mgps = new GPS(this,hasLocationListener);
+
+
+        // Initiate buttons.
+        b1.setText("<");
+        b1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mViewPager.getCurrentItem() > 0)
+                    mViewPager.setCurrentItem(mViewPager.getCurrentItem() - 1);
+            }
+        });
+        b1.setVisibility(View.INVISIBLE);
+        b1.getBackground().setColorFilter(0xFF003399, PorterDuff.Mode.MULTIPLY);
+
+        b2.setText(">");
+        b2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mViewPager.getCurrentItem() < mViewPager.getAdapter().getCount()+1)
+                    mViewPager.setCurrentItem(mViewPager.getCurrentItem() + 1);
+            }
+        });
+        b2.setVisibility(View.INVISIBLE);
+        b2.getBackground().setColorFilter(0xFF003399, PorterDuff.Mode.MULTIPLY);
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        EnumSet tempSet = EnumSet.allOf(Clothing.TempStatus.class);
+        ArrayList<Clothing.TempStatus> weatherList = new ArrayList<>(tempSet);
+
+        // Add the path for the standard clothing portraits to a weather key in shared preferences
+        // Only done one time after install since the datasets will never be null afterwards
+        for(Clothing.TempStatus c : weatherList){
+            if(c.getName().equals("Kunde inte")) continue;
+            Set<String> oldDataSet  = preferences.getStringSet(c.getName(),null);
+            if(oldDataSet == null){
+                String path = "";
+                switch (c){
+                    case mycketKallt: path = String.valueOf(R.mipmap.minus20); break;
+                    case kallt: path = String.valueOf(R.mipmap.minus20); break;
+                    case mycketKalltSno: path = String.valueOf(R.mipmap.minus20); break;
+                    case kalltSno: path = String.valueOf(R.mipmap.minus20); break;
+                    case nollgradigtMinus: path = String.valueOf(R.mipmap.plus0); break;
+                    case nollgradigtMinusRegn: path = String.valueOf(R.mipmap.plus0n); break;
+                    case nollgradigtPlus: path = String.valueOf(R.mipmap.plus0); break;
+                    case nollgradigtPlusRegn: path = String.valueOf(R.mipmap.plus0n); break;
+                    case kyligt: path = String.valueOf(R.mipmap.plus10); break;
+                    case kyligtRegn: path = String.valueOf(R.mipmap.plus10n); break;
+                    case varmt: path = String.valueOf(R.mipmap.plus10); break;
+                    case varmtRegn: path = String.valueOf(R.mipmap.plus10n); break;
+                    case varmare: path = String.valueOf(R.mipmap.plus20); break;
+                    case varmareRegn: path = String.valueOf(R.mipmap.plus20n); break;
+                    case hett: path = String.valueOf(R.mipmap.plus25); break;
+                    case hettRegn: path = String.valueOf(R.mipmap.plus25n); break;
+                }
+                Set<String> myset = new HashSet<>();
+                myset.add(path);
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putStringSet(c.getName(),myset);
+                editor.apply();
+            }
+        }
 
     }
 
@@ -120,20 +208,21 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         super.onStop();
     }
 
+    // Gathers the weather information and starts progressing towards updating layout based on the result.
     public void getWeatherInfo(){
         mCurrentWeather = null;
         final Networking newNetworking = new Networking(new Networking.AsyncResponse(){
             @Override
             public void processFinish(final Weather weather, final Exception exception) {
                 if (exception != null) {
-                    Toast.makeText(MainActivity.this, exception.getMessage(), Toast.LENGTH_LONG).show();
-                    new AlertDialog.Builder(MainActivity.this).setTitle("Error (please take screenshot)").setMessage(exception.getMessage())
+                  //  Toast.makeText(MainActivity.this, exception.getMessage(), Toast.LENGTH_LONG).show();
+                   /* new AlertDialog.Builder(MainActivity.this).setTitle("Error (please take screenshot)").setMessage(exception.getMessage())
                             .setPositiveButton("Close", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
 
                                 }
-                            }).show();
+                            }).show();*/
                     if(exception instanceof IOException){
                         MainActivity.this.runOnUiThread(new Runnable() {
                             @Override
@@ -144,14 +233,14 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                     }
                 }
                 mCurrentWeather = weather;
-                Log.d(TAG, "processFinish: " + weather);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         if(mCurrentWeather == null){
                             Toast.makeText(MainActivity.this,"Did not get the weather info,try again", Toast.LENGTH_LONG).show();
-                            showError(networkError);
+                          //  showError(networkError);
                         }else {
+                            // Got weather info, now its time to update the layout
                             updateLayout(mCurrentWeather);
                             progressBar.setVisibility(View.GONE);
                             tempKey = Clothing.getStatus(weather);
@@ -172,46 +261,59 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     }
 
     private void updateLayout(Weather weather){
-        Log.d(TAG, "updateLayout: mycurrentWeather :" +  weather.toString());
-        //update temp
+
+        // update the temperature
         double temp =  weather.getTemperature();
         String temperature = (int)Math.round(temp) + "°";
         mTemp.setText(temperature);
-        //update background
+        mTemp.setLetterSpacing(0.0001f);
+
+        if(weather.getRainfall() > 0)
+            mTemp.setContentDescription(temperature + " celsius med nederbörd");
+        else
+            mTemp.setContentDescription(temperature + " celsius");
+
+        // update the background based on the current weather
         WeatherSymbol.WeatherStatus status =  weather.getWeatherStatus();
         WeatherImage weatherImage = new WeatherImage();
         int id = WeatherImage.getWeatherSymbolImage(status,weatherImage.getCurrentSeason());
-        Log.d(TAG, "updateLayout: id" + id);
         baseBackground.setImageResource(id);
+
         baseBackground.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
                 baseBackground.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                int imageHeight = baseBackground.getHeight();
-                Log.d(TAG, "update: imageHeight" + imageHeight);
-                tempContainerHeight = (int)Math.round(imageHeight*0.22);
-                PercentRelativeLayout.LayoutParams params = new PercentRelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, tempContainerHeight);
-                tempContainer.setLayoutParams(params);
                 baseBackground.setVisibility(View.VISIBLE);
             }
         });
 
         tempKey = Clothing.getStatus(weather);
-        Log.d(TAG, "updateLayout: tempkey" +tempKey);
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
         Set<String> oldDataSet  = preferences.getStringSet(tempKey.getName(),null);
-        if(oldDataSet != null && !oldDataSet.isEmpty()){
-            mUriList = new ArrayList<>(oldDataSet);
-            updateViewPager();
-        }else {
-            mUriList = new ArrayList<>();
-            //update portrait
-            recoverImageView();
-            Clothing clothing = new Clothing();
-            int portraitId = clothing.getClosingImage( weather);
-            loadClothes(portrait,this,portraitId);
+        switch (tempKey){
+            case mycketKallt: tempDesc=getString(R.string.mycketKallt); break;
+            case kallt: tempDesc=getString(R.string.kallt); break;
+            case mycketKalltSno: tempDesc=getString(R.string.mycketKallt); break;
+            case kalltSno: tempDesc=getString(R.string.kallt); break;
+            case nollgradigtMinus: tempDesc=getString(R.string.nollgradigtMinus); break;
+            case nollgradigtMinusRegn: tempDesc=getString(R.string.nollgradigtMinusRegn); break;
+            case nollgradigtPlus: tempDesc=getString(R.string.nollgradigtPlus); break;
+            case nollgradigtPlusRegn: tempDesc=getString(R.string.nollgradigtPlusRegn); break;
+            case kyligt: tempDesc=getString(R.string.kyligt); break;
+            case kyligtRegn: tempDesc=getString(R.string.kyligtRegn); break;
+            case varmt: tempDesc=getString(R.string.kyligt); break;
+            case varmtRegn: tempDesc=getString(R.string.kyligtRegn); break;
+            case varmare: tempDesc=getString(R.string.varmt); break;
+            case varmareRegn: tempDesc=getString(R.string.varmtRegn); break;
+            case hett: tempDesc=getString(R.string.hett); break;
+            case hettRegn: tempDesc=getString(R.string.hettRegn); break;
         }
-        //start animation
+        mUriList = new ArrayList<>(oldDataSet); // Cannot be null since each dataset is populated in onCreate if it has not been saved before.
+        baseBackground.setContentDescription("");
+        RelativeLayout main = (RelativeLayout) findViewById(R.id.activity_main);
+        main.setContentDescription("");
+        updateViewPager();
+
         startAnimation(weather);
     }
 
@@ -262,17 +364,12 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             case ACTIVITY_RESULT_CODE:
                 switch (resultCode) {
                     case AppCompatActivity.RESULT_OK:
-                        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-                        Set<String> oldDataSet  = preferences.getStringSet(tempKey.getName(),null);
-                        if(oldDataSet != null&&!oldDataSet.isEmpty()){
+                        if(tempKey != null) {
+                            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+                            Set<String> oldDataSet = preferences.getStringSet(tempKey.getName(), null);
+
                             mUriList = new ArrayList<>(oldDataSet);
                             updateViewPager();
-                        }else {
-                            mUriList = new ArrayList<>();
-                            recoverImageView();
-                        }
-                        if(demoWeather != null){
-                            startAnimation(demoWeather);
                         }
                         break;
                 }
@@ -312,35 +409,86 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 intent.putExtra("tempKey",tempKey);
                 startActivityForResult(intent,ACTIVITY_RESULT_CODE);
                 break;
-            case R.id.demo_button:
-                stopAnimation();
-                Log.d(TAG, "onClick: demobutton");
-                demoCounter++;
-                startDemo();
+            case R.id.helpButton:
+                final Dialog dialog = new Dialog(this);
+
+                dialog.setContentView(R.layout.help_dialog);
+                dialog.setTitle("Help dialog");
+                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                final TextView editText = (TextView) dialog.findViewById(R.id.helpText);
+                editText.setText(R.string.help_text_main);
+                editText.setContentDescription(getString(R.string.help_text_main));
+                Button btn = (Button) dialog.findViewById(R.id.close);
+                btn.getBackground().setColorFilter(0xFF003399, PorterDuff.Mode.MULTIPLY);
+                btn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                    }});
+                dialog.show();
                 break;
-            case R.id.evaluation_button:
-                Log.d(TAG, "onClick: evalutation button");
-                stopAnimation();
-                evaluateApp();
+
             default:
                 Log.d(TAG, "onClick: "+ view.toString()+ "is clicked");
         }
     }
 
+    // Update the imagelist and initiate the viewpager.
     private void updateViewPager(){
         progressBar.setVisibility(View.INVISIBLE);
-        portrait.setVisibility(View.GONE);
-        ArrayList<Uri> mViewPagerList = changeStringListToUri(mUriList);
+        final ArrayList<Uri> mViewPagerList = changeStringListToUri(mUriList);
         if(!mViewPagerList.isEmpty()){
-            PagerAdapter adapterViewPager = new MyPagerAdapter(mViewPagerList, this);
+            Collections.sort(mViewPagerList,new Comparator<Uri>() {
+                @Override
+                public int compare(Uri s1, Uri s2) {
+                    return -s1.compareTo(s2);
+                }
+            });
+            DisplayMetrics dpMet =this.getResources().getDisplayMetrics();
+            int height = dpMet.heightPixels;
+            height = height - (height/3) + (height/7);
+            final PagerAdapter adapterViewPager = new MyPagerAdapter(mViewPagerList, this, tempDesc,height);
             mViewPager.setAdapter(adapterViewPager);
-            mViewPager.setVisibility(View.VISIBLE);
-        }
-    }
+            mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
-    private void recoverImageView(){
-        mViewPager.setVisibility(View.GONE);
-        portrait.setVisibility(View.VISIBLE);
+                @Override
+                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+                }
+
+                @Override
+                public void onPageSelected(int position) {
+
+                    if(position == 0) b1.setVisibility(View.INVISIBLE);
+                    else b1.setVisibility(View.VISIBLE);
+
+                    if(position == mViewPager.getAdapter().getCount()-1) b2.setVisibility(View.INVISIBLE);
+                    else b2.setVisibility(View.VISIBLE);
+
+                    if(mViewPagerList.size() == 1){
+                        b1.setVisibility(View.INVISIBLE);
+                        b2.setVisibility(View.INVISIBLE);
+                    }
+                }
+
+                @Override
+                public void onPageScrollStateChanged(int state) {
+
+                }
+            });
+            //Set button initial visibility based on number of images for current weather.
+            if(mViewPagerList.size() == 1){
+                b1.setVisibility(View.INVISIBLE);
+                b2.setVisibility(View.INVISIBLE);
+            }
+            if(mViewPagerList.size() > 1){
+                b1.setVisibility(View.INVISIBLE);
+                b2.setVisibility(View.VISIBLE);
+            }
+
+            mViewPager.setVisibility(View.VISIBLE);
+            if(mViewPagerList.size() > 1) b2.setVisibility(View.VISIBLE);
+        }
     }
 
     private ArrayList<Uri> changeStringListToUri(ArrayList<String> mUriList){
@@ -356,11 +504,15 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         private ArrayList<Uri> dataList;
         private LayoutInflater mInflater;
         private Context mContext;
+        private String tempDesc;
+        private int px;
 
-        MyPagerAdapter(ArrayList<Uri> dataList, Context context){
+        MyPagerAdapter(ArrayList<Uri> dataList, Context context,String imageDesc, int px){
             this.dataList = dataList;
             this.mContext = context;
             this.mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            this.tempDesc = imageDesc;
+            this.px = px;
         }
 
         @Override
@@ -376,12 +528,44 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             View itemView = mInflater.inflate(R.layout.picture_list_row, container, false);
+            itemView.setContentDescription(tempDesc);
+            Button delete = (Button)itemView.findViewById(R.id.delete_button);
+            delete.setVisibility(View.INVISIBLE);
             try{
                 ImageView imageView = (ImageView) itemView.findViewById(R.id.picture_place_holder);
-                Uri URI = dataList.get(position);
-                String imagePath = BitmapWorkerTask.getPathFromImageUri(URI,mContext);
-                BitmapWorkerTask ImageLoader = new BitmapWorkerTask(imageView);
-                ImageLoader.execute(imagePath);
+                imageView.getLayoutParams().height = px;
+
+                Uri selectedImage = dataList.get(position);
+                if(!selectedImage.toString().contains("/")){  //Don't use filepaths, just load image directly.
+                    BitmapWorkerTaskDemo clothesLoader = new BitmapWorkerTaskDemo(imageView,mContext);
+                    clothesLoader.execute(Integer.parseInt(selectedImage.toString()));
+                    imageView.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+                    imageView.postInvalidate();
+                }
+                //Image taken from media folder, use filepaths and bitworker.
+                else {
+                    String[] filePathColumn = {MediaStore.Images.Media.DATA};
+                    Cursor cursor = mContext.getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+                    assert cursor != null;
+                    cursor.moveToFirst();
+                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                    String imagePath = cursor.getString(columnIndex);
+                    cursor.close();
+                    int rotate = getCameraPhotoOrientation(mContext, selectedImage, imagePath);
+                    Log.d("Image", " " + rotate);
+                    BitmapWorkerTask ImageLoader = new BitmapWorkerTask(imageView);
+                    ImageLoader.execute(imagePath);
+                    if (rotate == 90) {
+                        int px2 = imageView.getLayoutParams().width;
+                        if(px2 > 0 ) imageView.getLayoutParams().height = px2;
+                        imageView.setRotation(90);
+                    } else if (rotate == 270) {
+                        int px2 = imageView.getLayoutParams().width;
+                        if(px2 > 0 ) imageView.getLayoutParams().height = px2;
+                        imageView.setRotation(-90);
+                    }
+                    imageView.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+                }
             }catch (OutOfMemoryError e1) {
                 e1.printStackTrace();
                 Log.e("Memory exceptions", "exceptions" + e1);
@@ -395,8 +579,34 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         public void destroyItem(ViewGroup container, int position, Object object) {
             container.removeView((RelativeLayout) object);
         }
-    }
 
+        private int getCameraPhotoOrientation(Context context, Uri imageUri, String imagePath){
+            int rotate = 0;
+            try {
+                context.getContentResolver().notifyChange(imageUri, null);
+                File imageFile = new File(imagePath);
+
+                ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
+                int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+
+                switch (orientation) {
+                    case ExifInterface.ORIENTATION_ROTATE_270:
+                        rotate = 270;
+                        break;
+                    case ExifInterface.ORIENTATION_ROTATE_180:
+                        rotate = 180;
+                        break;
+                    case ExifInterface.ORIENTATION_ROTATE_90:
+                        rotate = 90;
+                        break;
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return rotate;
+        }
+    }
 
     private Handler mHandler = new Handler(){
         @Override
@@ -455,50 +665,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         WeatherAnimation.setAnimationInterval(this,mCurrentWeather);
     }
 
-    private void startDemo(){
-        stopAnimation();
-        int position = demoCounter%(demoNumber+1);
-        demoWeather = getFakeWeather(position);
-        updateLayout(demoWeather);
-//        animationContainer.setVisibility(View.VISIBLE);
-    }
-
-    public Weather getFakeWeather(int position){
-        Weather fakeWeather;
-        switch (position){
-            case 1:
-                fakeWeather= new Weather(WeatherSymbol.WeatherStatus.ClearSky,3.0,0,0); //spring
-                break;
-            case 2:
-                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Lightsleet, 1.0,0.5,4); //spring rain and snow
-                break;
-            case 3:
-                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Sleet, -1,0.75,8); //spring rain and snow
-                break;
-            case 4:
-                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.ClearSky, 25.0,0.0,0.0); //summer
-                break;
-            case 5:
-                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Thunder,20.0,0.75,7); //summer Thunder and rain
-                break;
-            case 6:
-                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.ClearSky, 14.0, 0,0); // autumn
-                break;
-            case 7:
-                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Rain,10.0, 0.4, 4); //autumn rain
-                break;
-            case 8:
-                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Snowshowers, -9, 0.75, 8); //winter
-                break;
-            case 9:
-                fakeWeather = new Weather(WeatherSymbol.WeatherStatus.Cloudysky, -20,0,0); // winter no snow but cold
-                break;
-            default:
-                fakeWeather = mCurrentWeather;
-                break;
-        }
-        return fakeWeather;
-    }
 
     public void stopAnimation(){
         if(mHandler != null){
@@ -513,11 +679,6 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
     }
 
-    private void evaluateApp(){
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.mfd.se/kladereftervader"));
-        startActivity(browserIntent);
-    }
-
     private void showError(String key){
         progressBar.setVisibility(View.INVISIBLE);
         if(key.equals(gpsError)){
@@ -525,9 +686,5 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         }else if (key.equals(networkError)){
             baseBackground.setImageResource(R.mipmap.internet_error);
         }
-    }
-    private void loadClothes(ImageView imageView, Context mcontext, int resId){
-        BitmapWorkerTaskDemo clothesLoader = new BitmapWorkerTaskDemo(imageView,mcontext);
-        clothesLoader.execute(resId);
     }
 }

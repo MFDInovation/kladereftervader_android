@@ -18,7 +18,8 @@ import java.text.ParseException;
 import java.util.Locale;
 
 /**
- * Created by huaxie on 2017-01-02.
+ * This class handles the networking and more specifically does the API call to SMHI to fetch
+ * the weather conditions for the next 8 hours
  */
 
 class Networking extends AsyncTask< String, String, Weather > {
@@ -46,12 +47,11 @@ class Networking extends AsyncTask< String, String, Weather > {
         try {
             String longitude = String.format(Locale.US,"%.3f",GPS.getlongitude());
             String latitude = String.format(Locale.US,"%.3f",GPS.getlatitude());
-            Log.d(TAG, "doInBackground: " + longitude);
             URL weatherInfoURL = new URL(String.format("http://opendata-download-metfcst.smhi.se/api/category/pmp2g/version/2/geotype/point/lon/%s/lat/%s/data.json",
                     longitude, latitude));
             connection = (HttpURLConnection) weatherInfoURL.openConnection();
             connection.connect();
-
+            Log.d(TAG, "doInBackground: " + weatherInfoURL.toString());
             InputStream stream = connection.getInputStream();
             Reader inputStreamReader = new InputStreamReader(stream, StandardCharsets.UTF_8);
             reader = new BufferedReader(inputStreamReader);

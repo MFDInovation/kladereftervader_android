@@ -24,7 +24,8 @@ import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 
 /**
- * Created by huaxie on 2017-01-05.
+ * This class handles the GPS and is used for gathering the coordinates of the smartphone that is used
+ * when doing a API call to SMHI.
  */
 
 class GPS implements GoogleApiClient.ConnectionCallbacks,LocationListener,
