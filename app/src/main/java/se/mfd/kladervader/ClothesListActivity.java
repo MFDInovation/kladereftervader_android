@@ -28,8 +28,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -91,14 +94,38 @@ public class ClothesListActivity extends AppCompatActivity implements View.OnCli
         helpButton.setText("?");
 
         if(height < 1000 && height > 500){
-            addPictureButton.setWidth(150);
-            helpButton.setWidth(70);
-            returnButton.setWidth(150);
+            addPictureButton.setTextSize(TypedValue.COMPLEX_UNIT_SP,20);
+            helpButton.setTextSize(TypedValue.COMPLEX_UNIT_SP,20);
+            returnButton.setTextSize(TypedValue.COMPLEX_UNIT_SP,20);
+
+            ViewGroup.LayoutParams paramsAdd = addPictureButton.getLayoutParams();
+            paramsAdd.width = 160;
+            addPictureButton.setLayoutParams(paramsAdd);
+
+            ViewGroup.LayoutParams paramsReturn = returnButton.getLayoutParams();
+            paramsReturn.width = 160;
+            returnButton.setLayoutParams(paramsReturn);
+
+            ViewGroup.LayoutParams paramsHelp = helpButton.getLayoutParams();
+            paramsHelp.width = 100;
+            helpButton.setLayoutParams(paramsHelp);
         }
         else if(height < 500){
-            addPictureButton.setWidth(70);
-            helpButton.setWidth(35);
-            returnButton.setWidth(70);
+            addPictureButton.setTextSize(TypedValue.COMPLEX_UNIT_SP,20);
+            helpButton.setTextSize(TypedValue.COMPLEX_UNIT_SP,20);
+            returnButton.setTextSize(TypedValue.COMPLEX_UNIT_SP,20);
+
+            ViewGroup.LayoutParams paramsAdd = addPictureButton.getLayoutParams();
+            paramsAdd.width = 80;
+            addPictureButton.setLayoutParams(paramsAdd);
+
+            ViewGroup.LayoutParams paramsReturn = returnButton.getLayoutParams();
+            paramsReturn.width = 80;
+            returnButton.setLayoutParams(paramsReturn);
+
+            ViewGroup.LayoutParams paramsHelp = helpButton.getLayoutParams();
+            paramsHelp.width = 50;
+            helpButton.setLayoutParams(paramsHelp);
         }
 
 

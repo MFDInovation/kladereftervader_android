@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.database.CursorIndexOutOfBoundsException;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -21,8 +22,10 @@ import android.support.annotation.NonNull;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -99,10 +102,11 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         helpButton.getBackground().setColorFilter(0xFF003399, PorterDuff.Mode.MULTIPLY);
 
         if(height < 1000 && height > 500){
-            egnaBilderButton.setWidth(200);
+            egnaBilderButton.setWidth(240);
             helpButton.setWidth(50);
         }
         else if(height < 500){
+            egnaBilderButton.setTextSize(TypedValue.COMPLEX_UNIT_SP,20);
             egnaBilderButton.setWidth(100);
             helpButton.setWidth(30);
         }
@@ -171,9 +175,25 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 editor.apply();
             }
         }
-
+        for(Clothing.TempStatus c : weatherList) {
+            preferences = PreferenceManager.getDefaultSharedPreferences(this);
+            Set<String> dataSet  = preferences.getStringSet(c.getName(),null);
+            ArrayList<String> li = new ArrayList<>(dataSet); //Wont be null since its always instantiated at start of app if empty.
+            ArrayList<String> newList = new ArrayList<>(dataSet);
+            for(String s : li){
+                if(!TextUtils.isDigitsOnly(s)){
+                    if(getPath(Uri.parse(s)) == null) {
+                        newList.remove(s);
+                        Set<String> myset = new HashSet<>(newList);
+                        SharedPreferences.Editor editor = preferences.edit();
+                        editor.putStringSet(c.getName(), myset);
+                        editor.apply();
+                       // Toast.makeText(this,"En eller fler bilder har blivit borttagna",Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+        }
     }
-
 
     @Override
     protected void onStart() {
@@ -206,6 +226,25 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         mgps.stop();
         mgps = null;
         super.onStop();
+    }
+
+    private final synchronized String getPath(Uri uri) {
+        String res = null;
+        String[] proj = { MediaStore.Images.Media.DATA };
+        Cursor cursor = getContentResolver().query(uri, proj,
+                null, null, null);
+        try {
+            if (cursor.moveToFirst()) {
+                int column_index = cursor
+                        .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                res = cursor.getString(column_index);
+            }
+            cursor.close();
+        }
+        catch(NullPointerException e){
+            e.printStackTrace();
+        }
+        return res;
     }
 
     // Gathers the weather information and starts progressing towards updating layout based on the result.
@@ -420,6 +459,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 editText.setContentDescription(getString(R.string.help_text_main));
                 Button btn = (Button) dialog.findViewById(R.id.close);
                 btn.getBackground().setColorFilter(0xFF003399, PorterDuff.Mode.MULTIPLY);
+
                 btn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -569,6 +609,10 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             }catch (OutOfMemoryError e1) {
                 e1.printStackTrace();
                 Log.e("Memory exceptions", "exceptions" + e1);
+                return null;
+            }
+            catch(CursorIndexOutOfBoundsException e){
+                e.printStackTrace();
                 return null;
             }
             container.addView(itemView);
