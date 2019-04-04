@@ -60,7 +60,7 @@ class JsonParser {
                             rainfall = elementInParameter.getJSONArray("values").getDouble(0);
                             maxRainfall = Math.max(maxRainfall, rainfall);
                             break;
-                        case "Wsymb":
+                        case "Wsymb2":
                             symbol = elementInParameter.getJSONArray("values").getInt(0);
                             weatherSymbol = new WeatherSymbol(symbol);
                             int currentSymbolPriority = weatherSymbol.getmSymbolPriority();

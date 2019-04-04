@@ -34,6 +34,7 @@ class WeatherSymbol {
 
 
     WeatherStatus getWeatherStatus(int symbolValue) {
+		        // For now, we return just one single value in the cases where the API has different levels of the same weather type
         switch (symbolValue) {
             case 1:
                 return WeatherStatus.ClearSky;
@@ -50,20 +51,32 @@ class WeatherSymbol {
             case 7:
                 return WeatherStatus.Fog;
             case 8:
+			case 9:
+			case 10:
                 return WeatherStatus.Rainshowers;
-            case 9:
-                return WeatherStatus.Thunderstorm;
-            case 10:
-                return WeatherStatus.Lightsleet;
             case 11:
-                return WeatherStatus.Snowshowers;
+                return WeatherStatus.Thunderstorm;
             case 12:
-                return WeatherStatus.Rain;
-            case 13:
-                return WeatherStatus.Thunder;
-            case 14:
-                return WeatherStatus.Sleet;
+			case 13:
+			case 14:
+                return WeatherStatus.Lightsleet;
             case 15:
+			case 16:
+			case 17:
+                return WeatherStatus.Snowshowers;
+            case 18:
+			case 19:
+			case 20:
+                return WeatherStatus.Rain;
+            case 21:
+                return WeatherStatus.Thunder;
+            case 22:
+			case 23:
+			case 24:
+                return WeatherStatus.Sleet;
+            case 25:
+			case 26:
+			case 27:
                 return WeatherStatus.Snowfall;
             default:
                 return null;
