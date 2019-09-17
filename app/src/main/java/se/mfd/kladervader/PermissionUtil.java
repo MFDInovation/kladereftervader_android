@@ -27,7 +27,7 @@ abstract class PermissionUtil {
     private static final String PERMISSION_PROMPT_GPS_DIALOG = "permission_prompt_gps_dialog";
     private static final String PERMISSION_PROMPT_STORAGE_DIALOG =
             "permission_prompt_storage_dialog";
-    private static final int REQUEST_ACCESS_COURSE_LOCATION = 118;
+    private static final int REQUEST_ACCESS_FINE_LOCATION = 100;
     private static final int REQUEST_READ_EXTERNAL_STORAGE = 138;
 
     static boolean checkPermission(AppCompatActivity activity, final String whatPermission){
@@ -43,13 +43,14 @@ abstract class PermissionUtil {
             if (ActivityCompat.shouldShowRequestPermissionRationale(activity,
                     whatPermission)) {
                 switch (whatPermission) {
-                    case Manifest.permission.ACCESS_COARSE_LOCATION:
+                    case Manifest.permission.ACCESS_FINE_LOCATION:
                         if (PreferenceManager.getDefaultSharedPreferences(activity).getBoolean
                                 (PERMISSION_PROMPT_GPS_DIALOG, true)) {
-                            createLocationDialog(activity,Manifest.permission.ACCESS_COARSE_LOCATION);
+                            createLocationDialog(activity,Manifest.permission.ACCESS_FINE_LOCATION);
                             Log.d(TAG, "checkPermission: explaining");
                         }
                         break;
+
                     case Manifest.permission.READ_EXTERNAL_STORAGE:
                         if (PreferenceManager.getDefaultSharedPreferences(activity).getBoolean
                                 (PERMISSION_PROMPT_GPS_DIALOG, true)) {
@@ -63,11 +64,11 @@ abstract class PermissionUtil {
 
             } else {
                 switch (whatPermission){
-                    case Manifest.permission.ACCESS_COARSE_LOCATION:
+                    case Manifest.permission.ACCESS_FINE_LOCATION:
                         Log.d(TAG, "checkPermission: permission requesting");
                         ActivityCompat.requestPermissions(activity,
-                                new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                                REQUEST_ACCESS_COURSE_LOCATION);
+                                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                REQUEST_ACCESS_FINE_LOCATION);
                         break;
                     case Manifest.permission.READ_EXTERNAL_STORAGE:
                         ActivityCompat.requestPermissions(activity,
@@ -93,7 +94,7 @@ abstract class PermissionUtil {
                 Log.d(TAG, "onClick: click ok, request again");
                 ActivityCompat.requestPermissions(activity,
                         new String[]{what},
-                        REQUEST_ACCESS_COURSE_LOCATION);
+                        REQUEST_ACCESS_FINE_LOCATION);
             }
         });
         builder.setNegativeButton(R.string.permission_request_dont_ask_again, new DialogInterface.OnClickListener() {

@@ -46,7 +46,7 @@ class GPS implements GoogleApiClient.ConnectionCallbacks,LocationListener,
     GPS(AppCompatActivity activity, HasLocationListener listener) {
         mActivity = activity;
         mHasLocationListener = listener;
-        checkPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION);
+        checkPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION);
     }
 
     interface HasLocationListener {
