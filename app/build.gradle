@@ -5,10 +5,10 @@ android {
     buildToolsVersion '28.0.3'
     defaultConfig {
         applicationId "se.mfd.kladervader"
-        minSdkVersion 21
+        minSdkVersion 19
         targetSdkVersion 28
-        versionCode 3
-        versionName "1.02"
+        versionCode 4
+        versionName "1.03"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
